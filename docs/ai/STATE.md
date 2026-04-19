@@ -4,28 +4,38 @@ Current status as of 2026-04-19.
 
 ## Current Focus
 
-Repository setup complete. Issue workflow and knowledge persistence infrastructure copied from opencode-helpers.
+Orchestrating TDD port (issue #2). Phase 1 (S1 scaffolding) in progress.
 
-## Completed (this cycle)
+## Completed
 
-- [x] Phase 1: Repository created, git init, remote origin added
-- [x] Copied issue-workflow skill and commands from opencode-helpers
-- [x] Copied knowledge-persistence skill and command from opencode-helpers
-- [x] Created AGENTS.md with project-specific bootstrap config
-- [x] Created docs/ai/ knowledge file templates
+- [x] Repository created, git init, remote origin added
+- [x] Opencode infrastructure: AGENTS.md, .gitignore, skills, commands, docs/ai/
+- [x] Architecture decisions (20 decisions in DECISIONS.md)
+- [x] Coding conventions (CONVENTIONS.md)
+- [x] Parent issue #2 created with TDD orchestration plan
+- [x] 14 sub-issues (#3–#16) created with resolved decisions
+- [x] Execution plan (parallel worktrees, 7 phases) posted on #2
+- [x] .NET 8 SDK (8.0.420) installed
+- [x] Default branch renamed to main, LF line endings configured
+- [x] AITranscribe.sln created (no projects yet)
+
+## In Progress
+
+- [ ] S1 (#3): Solution scaffolding
 
 ## Pending
 
-- [ ] Phase 2: Solution and project scaffolding (.sln, .csproj, NuGet packages)
-- [ ] Phase 3: Core library implementation
-- [ ] Phase 4: Console application implementation
-- [ ] Phase 5: Tests
-- [ ] Phase 6: README.md
+- Phase 2: S2 (#4), S5 (#7), S6 (#8) — parallel
+- Phase 3: S3 (#5), S4 (#6), S7 (#9) — parallel
+- Phase 4: S8 (#10) — serial
+- Phase 5: S9 (#11) — serial
+- Phase 6: S10 (#12), S11 (#13) — parallel
+- Phase 7: S12 (#14), S13 (#15), S14 (#16) — parallel
 
 ## Blockers
 
 None
 
-## Next Session Suggestion
+## Next Session
 
-Start Phase 2: scaffold the .NET solution with AITranscribe.sln, Core and Console projects, and test projects with NuGet packages as specified in issue #1.
+Resume S1 scaffolding, then orchestrate Phases 2–7.
