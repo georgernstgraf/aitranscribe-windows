@@ -1,0 +1,21 @@
+## .NET
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.cache
+*.dll
+*.pdb
+
+## IDE
+.idea/
+.vscode/
+*.swp
+
+## OS
+Thumbs.db
+.DS_Store
+
+## AI knowledge (solutions only)
+docs/ai/*_solutions.md
