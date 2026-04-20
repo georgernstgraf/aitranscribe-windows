@@ -201,32 +201,7 @@ public class TranscriptionServiceTests
 
     private static byte[] CreateMinimalWav(int sampleCount = 100)
     {
-        using var ms = new MemoryStream();
-        using var writer = new BinaryWriter(ms);
-        ushort channels = 1;
-        uint sampleRate = 44100;
-        ushort bitsPerSample = 16;
-        ushort blockAlign = (ushort)(channels * bitsPerSample / 8);
-        uint byteRate = sampleRate * blockAlign;
-        uint dataSize = (uint)(sampleCount * blockAlign);
-
-        writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
-        writer.Write(36 + dataSize);
-        writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVE"));
-        writer.Write(System.Text.Encoding.ASCII.GetBytes("fmt "));
-        writer.Write(16);
-        writer.Write((ushort)1);
-        writer.Write(channels);
-        writer.Write(sampleRate);
-        writer.Write(byteRate);
-        writer.Write(blockAlign);
-        writer.Write(bitsPerSample);
-        writer.Write(System.Text.Encoding.ASCII.GetBytes("data"));
-        writer.Write(dataSize);
-        for (int i = 0; i < sampleCount; i++)
-            writer.Write((short)0);
-        writer.Flush();
-        return ms.ToArray();
+        return new byte[sampleCount * 2];
     }
 
     private static void TryDelete(string path)

@@ -2,6 +2,7 @@ using AITranscribe.Core.Api;
 using AITranscribe.Core.Audio;
 using AITranscribe.Core.Data;
 using AITranscribe.Core.Models;
+using NAudio.Wave;
 
 namespace AITranscribe.Core.Services;
 
@@ -42,7 +43,7 @@ public class TranscriptionService
 
         try
         {
-            await File.WriteAllBytesAsync(wavPath, audio, ct);
+            WritePcmAsWav(audio, wavPath);
 
             feedbackCallback?.Invoke("compress", "active");
             await AudioProcessor.CompressAsync(wavPath, mp3Path, ct);
@@ -205,5 +206,12 @@ public class TranscriptionService
     {
         try { if (File.Exists(path)) File.Delete(path); }
         catch { }
+    }
+
+    private static void WritePcmAsWav(byte[] pcmData, string outputPath)
+    {
+        var waveFormat = new WaveFormat(44100, 16, 1);
+        using var writer = new WaveFileWriter(outputPath, waveFormat);
+        writer.Write(pcmData, 0, pcmData.Length);
     }
 }
