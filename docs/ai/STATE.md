@@ -1,36 +1,39 @@
 # Project State
 
-Current status as of 2026-04-19.
+Current status as of 2026-04-20.
 
 ## Current Focus
 
-Orchestrating TDD port (issue #2). Phase 1 (S1 scaffolding) in progress.
+All 14 TDD sub-issues (S1-S14) completed and closed. Core library and TUI scaffolded.
 
 ## Completed
 
-- [x] Repository created, git init, remote origin added
-- [x] Opencode infrastructure: AGENTS.md, .gitignore, skills, commands, docs/ai/
-- [x] Architecture decisions (20 decisions in DECISIONS.md)
-- [x] Coding conventions (CONVENTIONS.md)
-- [x] Parent issue #2 created with TDD orchestration plan
-- [x] 14 sub-issues (#3–#16) created with resolved decisions
-- [x] Execution plan (parallel worktrees, 7 phases) posted on #2
-- [x] .NET 8 SDK (8.0.420) installed
-- [x] Default branch renamed to main, LF line endings configured
-- [x] AITranscribe.sln created (no projects yet)
+- [x] S1: Solution scaffolding (4 projects, NuGet packages, net8.0-windows)
+- [x] S2: Models (Transcription, LlmProvider, PreProcessMode as records)
+- [x] S3: Configuration (AppConfig + ConfigManager, JSON, Python dotenv migration)
+- [x] S4: Data (IPromptManager + PromptManager, SQLite CRUD, migration)
+- [x] S5: Audio Processing (AudioProcessor + AudioChunker, NAudio.Lame MP3 encoding)
+- [x] S6: Audio Recording (AudioRecorder + IAudioCapture + WasapiAudioCapture)
+- [x] S7: STT Client (ISttClient + GroqSttClient, OpenAI SDK)
+- [x] S8: LLM Client (ILlmClient + LlmClient + LlmProviders, hardcoded registry)
+- [x] S9: Processing Pipeline (TranscriptionService, 4-phase, summary, translation)
+- [x] S10: CLI Commands (TranscribeSettings + TranscribeCommand, Spectre.Console.Cli)
+- [x] S11: TUI Layout (AITranscribeTui, Terminal.Gui, two-column layout)
+- [x] S12: TUI Recording (RecordingController, background Task.Run, MainLoop.Invoke)
+- [x] S13: TUI History (HistoryManager, CRUD, append mode)
+- [x] S14: TUI Config + Translation + Clipboard (Prompts, ClipboardHelper, WinForms)
 
-## In Progress
+## Test Summary
 
-- [ ] S1 (#3): Solution scaffolding
+- **115 tests total, 115 passed, 0 failed**
+- Core.Tests: 64 tests
+- Console.Tests: 51 tests
 
 ## Pending
 
-- Phase 2: S2 (#4), S5 (#7), S6 (#8) — parallel
-- Phase 3: S3 (#5), S4 (#6), S7 (#9) — parallel
-- Phase 4: S8 (#10) — serial
-- Phase 5: S9 (#11) — serial
-- Phase 6: S10 (#12), S11 (#13) — parallel
-- Phase 7: S12 (#14), S13 (#15), S14 (#16) — parallel
+- Integration testing (end-to-end flow with real API)
+- README.md
+- Polish and UX refinement
 
 ## Blockers
 
@@ -38,4 +41,4 @@ None
 
 ## Next Session
 
-Resume S1 scaffolding, then orchestrate Phases 2–7.
+Integration testing and README. Or pick up remaining items from issue #1.
