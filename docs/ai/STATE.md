@@ -4,7 +4,7 @@ Current status as of 2026-04-20.
 
 ## Current Focus
 
-All 14 TDD sub-issues (S1-S14) completed and closed. Core library and TUI scaffolded.
+All 15 TDD sub-issues (S1-S15) completed and closed. Full DI wiring, CLI, and TUI paths implemented. 160 tests green.
 
 ## Completed
 
@@ -22,18 +22,31 @@ All 14 TDD sub-issues (S1-S14) completed and closed. Core library and TUI scaffo
 - [x] S12: TUI Recording (RecordingController, background Task.Run, MainLoop.Invoke)
 - [x] S13: TUI History (HistoryManager, CRUD, append mode)
 - [x] S14: TUI Config + Translation + Clipboard (Prompts, ClipboardHelper, WinForms)
+- [x] S15A: CompositionRoot (Microsoft.Extensions.DependencyInjection, all services wired)
+- [x] S15B: TranscribeCommand wired (CLI: --list, --query, --remove, --file, mic)
+- [x] S15C: TUI Launch wired (no-args detection, RecordingController owns state, TuiOrchestrator)
+- [x] S15D: Integration Smoke Tests (4 tests, real temp SQLite, mocked APIs)
 
 ## Test Summary
 
-- **115 tests total, 115 passed, 0 failed**
-- Core.Tests: 64 tests
-- Console.Tests: 51 tests
+- **160 tests total, 160 passed, 0 failed**
+- Core.Tests: 63 tests
+- Console.Tests: 97 tests
+
+## Architecture
+
+- CompositionRoot wires all services via Microsoft.Extensions.DependencyInjection
+- TranscribeCommand uses static Services property set by Program.cs
+- No-args → RunTui() before Spectre CommandApp
+- CLI args → CommandApp<TranscribeCommand> with service resolution
+- TuiOrchestrator wires RecordingController callbacks to AITranscribeTui
 
 ## Pending
 
-- Integration testing (end-to-end flow with real API)
 - README.md
 - Polish and UX refinement
+- Push 3 local commits to origin
+- Close issue #2 (parent epic)
 
 ## Blockers
 
@@ -41,4 +54,4 @@ None
 
 ## Next Session
 
-Integration testing and README. Or pick up remaining items from issue #1.
+README.md, push to origin, close remaining issues. Or pick up remaining items from issue #1.
