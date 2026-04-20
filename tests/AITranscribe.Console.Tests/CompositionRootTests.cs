@@ -109,6 +109,18 @@ public class CompositionRootTests : IDisposable
         manager.Should().NotBeNull();
     }
 
+    [Fact]
+    public void Build_WithEmptyApiKey_DoesNotThrow()
+    {
+        var configPath = Path.Combine(_tempDir, "empty_config.json");
+        var configManager = new ConfigManager(configPath);
+        var config = AppConfig.CreateDefault();
+        var dbPath = Path.Combine(_tempDir, "empty.sqlite");
+
+        Action act = () => CompositionRoot.Build(configManager, config, dbPath);
+        act.Should().NotThrow();
+    }
+
     public void Dispose()
     {
         try

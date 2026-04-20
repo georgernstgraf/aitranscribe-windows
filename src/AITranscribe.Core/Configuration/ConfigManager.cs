@@ -26,10 +26,28 @@ public class ConfigManager
         var configDir = Path.Combine(appData, "AITranscribe");
         var configPath = Path.Combine(configDir, "config.json");
 
-        var pythonAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var pythonConfigDir = Path.Combine(pythonAppData, "aitranscribe");
+        var pythonConfigDir = FindPythonConfigDir();
 
         return new ConfigManager(configPath, pythonConfigDir);
+    }
+
+    private static string? FindPythonConfigDir()
+    {
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var candidates = new[]
+        {
+            Path.Combine(appData, "aitranscribe"),
+            Path.Combine(appData, "AITranscribe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "aitranscribe"),
+        };
+
+        foreach (var dir in candidates)
+        {
+            if (File.Exists(Path.Combine(dir, "config")))
+                return dir;
+        }
+
+        return Path.Combine(appData, "aitranscribe");
     }
 
     public AppConfig Load()
@@ -149,6 +167,8 @@ public class ConfigManager
             var value = trimmed[(eqIndex + 1)..].Trim();
 
             if (value.StartsWith('"') && value.EndsWith('"') && value.Length >= 2)
+                value = value[1..^1];
+            else if (value.StartsWith('\'') && value.EndsWith('\'') && value.Length >= 2)
                 value = value[1..^1];
 
             result[key] = value;

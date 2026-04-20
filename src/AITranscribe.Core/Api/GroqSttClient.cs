@@ -5,23 +5,24 @@ namespace AITranscribe.Core.Api;
 
 public class GroqSttClient : ISttClient
 {
-    private readonly OpenAIClient _client;
+    public string ApiKey { get; }
 
     public GroqSttClient(string apiKey)
     {
-        ArgumentNullException.ThrowIfNull(apiKey);
-        ApiKey = apiKey;
-        _client = new OpenAIClient(new ApiKeyCredential(apiKey), new OpenAIClientOptions
-        {
-            Endpoint = new Uri("https://api.groq.com/openai/v1")
-        });
+        ApiKey = apiKey ?? throw new ArgumentNullException(nameof(apiKey));
     }
-
-    public string ApiKey { get; }
 
     public async Task<string> TranscribeAsync(Stream audio, string model, CancellationToken ct = default)
     {
-        var audioClient = _client.GetAudioClient(model);
+        if (string.IsNullOrWhiteSpace(ApiKey))
+            throw new InvalidOperationException("Groq API key is not configured. Set Groq.ApiKey in config.json.");
+
+        var client = new OpenAIClient(new ApiKeyCredential(ApiKey), new OpenAIClientOptions
+        {
+            Endpoint = new Uri("https://api.groq.com/openai/v1")
+        });
+
+        var audioClient = client.GetAudioClient(model);
         var transcription = await audioClient.TranscribeAudioAsync(audio, "audio.wav", cancellationToken: ct);
         return transcription.Value.Text;
     }

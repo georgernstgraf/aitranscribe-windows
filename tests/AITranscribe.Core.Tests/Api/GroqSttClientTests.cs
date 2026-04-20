@@ -20,9 +20,25 @@ public class GroqSttClientTests
     }
 
     [Fact]
+    public void Constructor_EmptyApiKey_DoesNotThrow()
+    {
+        Action act = () => new GroqSttClient("");
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void Constructor_SetsProperties()
     {
         var client = new GroqSttClient("test-key");
         client.ApiKey.Should().Be("test-key");
+    }
+
+    [Fact]
+    public async Task TranscribeAsync_EmptyApiKey_ThrowsInvalidOperationException()
+    {
+        var client = new GroqSttClient("");
+        using var stream = new MemoryStream();
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.TranscribeAsync(stream, "model"));
     }
 }

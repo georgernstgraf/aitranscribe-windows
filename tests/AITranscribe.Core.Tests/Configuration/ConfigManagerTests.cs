@@ -132,6 +132,24 @@ public class ConfigManagerTests : IDisposable
     }
 
     [Fact]
+    public void MigrateFromPythonDotenv_AcceptsSingleQuotedValues()
+    {
+        Directory.CreateDirectory(PythonConfigDir);
+        var dotenvPath = Path.Combine(PythonConfigDir, "config");
+        var dotenvContent = """
+            GROQ_API_KEY='single-quoted-key'
+            OPENROUTER_API_KEY='or-key'
+            """;
+        File.WriteAllText(dotenvPath, dotenvContent);
+
+        var manager = new ConfigManager(ConfigFilePath, pythonConfigDir: PythonConfigDir);
+        var config = manager.Load();
+
+        config.Groq.ApiKey.Should().Be("single-quoted-key");
+        config.OpenRouter.ApiKey.Should().Be("or-key");
+    }
+
+    [Fact]
     public void MigrateFromPythonDotenv_OpenRouterKeysImported()
     {
         Directory.CreateDirectory(PythonConfigDir);

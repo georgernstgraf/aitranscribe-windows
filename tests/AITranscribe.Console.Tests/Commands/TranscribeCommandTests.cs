@@ -291,13 +291,12 @@ public class TranscribeCommandExecutionTests : IDisposable
 
     public TranscribeCommandExecutionTests()
     {
-        TranscribeCommand.Services = null;
         var services = new ServiceCollection();
         var mockPromptManager = new Mock<IPromptManager>();
         mockPromptManager.Setup(x => x.InitializeAsync(default)).Returns(Task.CompletedTask);
         mockPromptManager.Setup(x => x.GetAllAsync(default))
             .ReturnsAsync(new List<StoredPrompt>());
-        services.AddSingleton(mockPromptManager.Object);
+        services.AddSingleton<IPromptManager>(mockPromptManager.Object);
         services.AddSingleton(AppConfig.CreateDefault());
         _serviceProvider = services.BuildServiceProvider();
         TranscribeCommand.Services = _serviceProvider;
