@@ -13,6 +13,8 @@ public class RecordingController
     public TuiState State { get; private set; } = TuiState.Idle;
     public bool IsProcessing => State == TuiState.Processing;
 
+    public Func<TranscriptionSettings>? SettingsProvider { get; set; }
+
     public Action<TuiState>? OnStateChanged { get; set; }
     public Action<string, string>? OnFeedback { get; set; }
     public Action<string>? OnTranscriptUpdate { get; set; }
@@ -86,8 +88,9 @@ public class RecordingController
 
         try
         {
-            var settings = new TranscriptionSettings(
-                PreProcessMode.Raw, "", "", "", "", false, "", null, false);
+            var settings = SettingsProvider != null
+                ? SettingsProvider()
+                : new TranscriptionSettings(PreProcessMode.Raw, "", "", "", "", false, "", null, false);
             var result = await _transcriptionService.ProcessMicAudioAsync(
                 audio, settings, Feedback, TranscriptCallback, ct);
             InvokeOnMainThread?.Invoke(() =>

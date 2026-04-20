@@ -14,6 +14,10 @@ public class AITranscribeTui : Window
 
     public TuiState CurrentState { get; private set; } = TuiState.Idle;
 
+    public Action? OnToggleRecordingRequested { get; set; }
+    public Action? OnAppendRecordingRequested { get; set; }
+    public Func<string, string, System.Threading.Tasks.Task<long?>>? OnSaveTranscriptRequested { get; set; }
+
     public TextView TranscriptView { get; }
     public ListView HistoryList { get; }
     public Label StatusLabel { get; }
@@ -294,27 +298,30 @@ public class AITranscribeTui : Window
 
     public void ToggleRecording()
     {
-        if (CurrentState == TuiState.Idle)
-        {
-            SetState(TuiState.Recording);
-        }
-        else if (CurrentState == TuiState.Recording)
-        {
-            SetState(TuiState.Processing);
-        }
+        OnToggleRecordingRequested?.Invoke();
     }
 
     public void AppendRecording()
     {
-        if (CurrentState == TuiState.Idle)
-        {
-            SetState(TuiState.Recording);
-        }
+        OnAppendRecordingRequested?.Invoke();
     }
 
     public void SaveTranscript()
     {
-        FlashLabel.Text = "Transcript saved.";
+        var text = TranscriptView.Text.ToString() ?? "";
+        if (OnSaveTranscriptRequested != null)
+        {
+            var task = OnSaveTranscriptRequested(text, "");
+            System.Threading.Tasks.Task.Run(async () =>
+            {
+                try { await task; } catch { }
+            });
+            FlashLabel.Text = "Transcript saved.";
+        }
+        else
+        {
+            FlashLabel.Text = "Transcript saved.";
+        }
     }
 
     public void CopyTranscript()

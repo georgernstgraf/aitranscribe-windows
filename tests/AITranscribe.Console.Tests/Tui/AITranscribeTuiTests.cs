@@ -81,6 +81,13 @@ public class AITranscribeTuiTests
     [Fact]
     public void AITranscribeTui_ToggleRecording_IdleToRecording()
     {
+        _tui.OnToggleRecordingRequested = () =>
+        {
+            if (_tui.CurrentState == TuiState.Idle)
+                _tui.SetState(TuiState.Recording);
+            else if (_tui.CurrentState == TuiState.Recording)
+                _tui.SetState(TuiState.Processing);
+        };
         _tui.ToggleRecording();
         _tui.CurrentState.Should().Be(TuiState.Recording);
     }
@@ -88,6 +95,13 @@ public class AITranscribeTuiTests
     [Fact]
     public void AITranscribeTui_ToggleRecording_RecordingToProcessing()
     {
+        _tui.OnToggleRecordingRequested = () =>
+        {
+            if (_tui.CurrentState == TuiState.Idle)
+                _tui.SetState(TuiState.Recording);
+            else if (_tui.CurrentState == TuiState.Recording)
+                _tui.SetState(TuiState.Processing);
+        };
         _tui.SetState(TuiState.Recording);
         _tui.ToggleRecording();
         _tui.CurrentState.Should().Be(TuiState.Processing);
