@@ -40,7 +40,6 @@ public class TranscribeCommand : Command<TranscribeSettings>
     private int ExecuteList()
     {
         var promptManager = Services!.GetRequiredService<IPromptManager>();
-        promptManager.InitializeAsync().GetAwaiter().GetResult();
         var prompts = promptManager.GetAllAsync().GetAwaiter().GetResult();
 
         if (prompts.Count == 0)
@@ -67,7 +66,6 @@ public class TranscribeCommand : Command<TranscribeSettings>
     private int ExecuteQuery()
     {
         var promptManager = Services!.GetRequiredService<IPromptManager>();
-        promptManager.InitializeAsync().GetAwaiter().GetResult();
         var prompts = promptManager.GetAllAsync().GetAwaiter().GetResult();
 
         if (prompts.Count == 0)
@@ -85,7 +83,6 @@ public class TranscribeCommand : Command<TranscribeSettings>
     private int ExecuteRemove(int index)
     {
         var promptManager = Services!.GetRequiredService<IPromptManager>();
-        promptManager.InitializeAsync().GetAwaiter().GetResult();
         var prompts = promptManager.GetAllAsync().GetAwaiter().GetResult();
 
         if (index < 1 || index > prompts.Count)

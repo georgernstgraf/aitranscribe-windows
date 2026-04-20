@@ -1,6 +1,7 @@
 using AITranscribe.Console.Commands;
 using AITranscribe.Console.Tui;
 using AITranscribe.Core.Configuration;
+using AITranscribe.Core.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 using Terminal.Gui;
@@ -24,12 +25,17 @@ internal static class Program
             config.ValidateExamples();
         });
 
+        TranscribeCommand.Services = CompositionRoot.Build();
+        InitializeDatabase(TranscribeCommand.Services);
+
         return app.Run(args);
     }
 
     private static int RunTui()
     {
         var services = CompositionRoot.Build();
+        InitializeDatabase(services);
+
         var tui = services.GetRequiredService<AITranscribeTui>();
         var controller = services.GetRequiredService<RecordingController>();
         var historyManager = services.GetRequiredService<HistoryManager>();
@@ -41,5 +47,11 @@ internal static class Program
         Application.Run(tui);
         Application.Shutdown();
         return 0;
+    }
+
+    private static void InitializeDatabase(IServiceProvider services)
+    {
+        var promptManager = services.GetRequiredService<IPromptManager>();
+        promptManager.InitializeAsync().GetAwaiter().GetResult();
     }
 }

@@ -428,6 +428,11 @@ public class TranscribeCommandExecutionTests : IDisposable
     [Fact]
     public void ExecuteFile_NoApiKey_ReturnsOne()
     {
+        var services = new ServiceCollection();
+        services.AddSingleton(AppConfig.CreateDefault());
+        services.AddSingleton<IPromptManager>(new Mock<IPromptManager>().Object);
+        TranscribeCommand.Services = services.BuildServiceProvider();
+
         var cmd = new TranscribeCommand();
         var settings = new TranscribeSettings { File = "test.wav" };
 
