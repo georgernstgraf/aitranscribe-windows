@@ -8,15 +8,8 @@ public class LlmClientTests
     [Fact]
     public void ILlmClient_InterfaceExists()
     {
-        ILlmClient client = new LlmClient("test-key");
+        ILlmClient client = new LlmClient();
         client.Should().NotBeNull();
-    }
-
-    [Fact]
-    public void Constructor_NullApiKey_Throws()
-    {
-        Action act = () => new LlmClient(null!);
-        act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]

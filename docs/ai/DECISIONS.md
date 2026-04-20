@@ -64,3 +64,41 @@ No version pinning. Use current stable versions of all NuGet packages.
 
 ### D20: System Prompt — Character-for-character match Python
 LLM system prompts (process_with_llm, summary, translation) replicated exactly from Python source. No paraphrasing.
+
+## 2026-04-20: S15 DI Wiring Decisions
+
+### D21: DI Container — Microsoft.Extensions.DependencyInjection
+Industry-standard .NET DI. IServiceCollection + IServiceProvider. Well-tested, familiar, integrates with Spectre.Cli's TypeRegistrar if needed later.
+
+### D22: CompositionRoot wires ALL services including TUI classes
+Single registration point for Core services (ISttClient, ILlmClient, IPromptManager, TranscriptionService) and Console TUI classes (RecordingController, HistoryManager, AITranscribeTui, AudioRecorder).
+
+### D23: ConfigManager.Load() called inside CompositionRoot
+CompositionRoot creates ConfigManager, calls Load(), uses AppConfig to resolve services. Caller just creates CompositionRoot and resolves what it needs.
+
+### D24: LlmClient — parameterless constructor, apiKey per-call
+LlmClient constructor becomes parameterless. ApiKey always passed via ProcessAsync() parameters. Supports multi-provider design where different providers have different keys.
+
+### D25: Fail fast on missing API key
+CLI commands (--file, mic recording) check API key before making HTTP calls. Print clear error: "No API key configured for [provider]. Set it in config.json" and exit code 1.
+
+### D26: --list uses Spectre table
+Rich table with columns: ID, Summary (truncated to ~40 chars), CreatedAt. Matches Python's Rich console.print behavior.
+
+### D27: Verbose mode — status messages + full exceptions
+Prints Spectre status messages for each pipeline step (compressing, transcribing, post-processing). On error, prints full exception stack trace. Matches Python behavior.
+
+### D28: No-args detection before Spectre CommandApp
+In Program.cs, check args.Length == 0 before creating CommandApp. If no args, create CompositionRoot and launch TUI directly. Matches Python's approach.
+
+### D29: RecordingController owns state
+RecordingController is the state machine (Idle/Recording/Processing). AITranscribeTui forwards key events to it. TUI updates its display from controller callbacks (OnStateChanged, OnFeedback, etc.).
+
+### D30: Integration tests — direct TranscribeCommand instantiation
+Create TranscribeCommand with mock services directly, not via CommandApp pipeline. Tests the logic, not the Spectre framework.
+
+### D31: Integration tests in AITranscribe.Console.Tests/Integration/
+New subfolder in existing test project. No new .csproj. Tests reference Console project which already references Core.
+
+### D32: Integration tests mock APIs, use real temp SQLite
+Mock ISttClient and ILlmClient responses. Use real PromptManager with temp SQLite file. Tests real DB + real service wiring, fake network calls.
