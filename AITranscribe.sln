@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AITranscribe.Core.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AITranscribe.Console.Tests", "tests\AITranscribe.Console.Tests\AITranscribe.Console.Tests.csproj", "{347F6EF6-A9A0-4C9F-A97A-43FCC55BA7FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AITranscribe.Integration.Tests", "tests\AITranscribe.Integration.Tests\AITranscribe.Integration.Tests.csproj", "{37F77407-33C7-4B87-BC79-20F5E1111137}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,11 +42,16 @@ Global
 		{347F6EF6-A9A0-4C9F-A97A-43FCC55BA7FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{347F6EF6-A9A0-4C9F-A97A-43FCC55BA7FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{347F6EF6-A9A0-4C9F-A97A-43FCC55BA7FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37F77407-33C7-4B87-BC79-20F5E1111137}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37F77407-33C7-4B87-BC79-20F5E1111137}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37F77407-33C7-4B87-BC79-20F5E1111137}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37F77407-33C7-4B87-BC79-20F5E1111137}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E3F8BBF3-DE3E-4498-92FF-B9F426B2AB33} = {D57907C8-ACC4-47B5-830A-AA2561D48199}
 		{DB455881-DF6F-49F2-BA47-94CC4448ED7C} = {D57907C8-ACC4-47B5-830A-AA2561D48199}
 		{CBB39C87-45DA-4486-8D3B-603DC5ECBDED} = {81B102E0-6EF2-4AF1-B787-B1462849919A}
 		{347F6EF6-A9A0-4C9F-A97A-43FCC55BA7FE} = {81B102E0-6EF2-4AF1-B787-B1462849919A}
+		{37F77407-33C7-4B87-BC79-20F5E1111137} = {81B102E0-6EF2-4AF1-B787-B1462849919A}
 	EndGlobalSection
 EndGlobal

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="AITranscribe.Console.Tests" />
+    <InternalsVisibleTo Include="AITranscribe.Integration.Tests" />
   </ItemGroup>
 
   <ItemGroup>
