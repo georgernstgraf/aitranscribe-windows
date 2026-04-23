@@ -23,11 +23,5 @@ public static class LiveTestConfig
         return !string.IsNullOrEmpty(config.Groq.ApiKey);
     }
 
-    public static void SkipIfNotLive()
-    {
-        if (!IsLiveTest)
-            throw new SkipException(SkipReason);
-    }
-
     public const string SkipReason = "Set LIVE_TEST=1 env var to run integration tests";
 }
