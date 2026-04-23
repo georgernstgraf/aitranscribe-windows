@@ -43,10 +43,10 @@ All 15 TDD sub-issues (S1-S15) completed and closed. Full DI wiring, CLI, and TU
 
 ## Pending
 
+- Issue #22: Integration tests (sub-issues I1-I6, #28/#23-#27)
 - README.md
 - Polish and UX refinement
 - Push 3 local commits to origin
-- Close issue #2 (parent epic)
 
 ## Blockers
 
@@ -54,4 +54,4 @@ None
 
 ## Next Session
 
-README.md, push to origin, close remaining issues. Or pick up remaining items from issue #1.
+Implement integration tests starting with I1 (#28), or README.md / push.
