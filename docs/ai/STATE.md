@@ -1,57 +1,46 @@
 # Project State
 
-Current status as of 2026-04-20.
+Current status as of 2026-04-24.
 
 ## Current Focus
 
-All 15 TDD sub-issues (S1-S15) completed and closed. Full DI wiring, CLI, and TUI paths implemented. 160 tests green.
+Integration tests (#22) fully implemented. All 6 sub-issues committed. Ready to close on GitHub.
 
 ## Completed
 
-- [x] S1: Solution scaffolding (4 projects, NuGet packages, net8.0-windows)
-- [x] S2: Models (Transcription, LlmProvider, PreProcessMode as records)
-- [x] S3: Configuration (AppConfig + ConfigManager, JSON, Python dotenv migration)
-- [x] S4: Data (IPromptManager + PromptManager, SQLite CRUD, migration)
-- [x] S5: Audio Processing (AudioProcessor + AudioChunker, NAudio.Lame MP3 encoding)
-- [x] S6: Audio Recording (AudioRecorder + IAudioCapture + WasapiAudioCapture)
-- [x] S7: STT Client (ISttClient + GroqSttClient, OpenAI SDK)
-- [x] S8: LLM Client (ILlmClient + LlmClient + LlmProviders, hardcoded registry)
-- [x] S9: Processing Pipeline (TranscriptionService, 4-phase, summary, translation)
-- [x] S10: CLI Commands (TranscribeSettings + TranscribeCommand, Spectre.Console.Cli)
-- [x] S11: TUI Layout (AITranscribeTui, Terminal.Gui, two-column layout)
-- [x] S12: TUI Recording (RecordingController, background Task.Run, MainLoop.Invoke)
-- [x] S13: TUI History (HistoryManager, CRUD, append mode)
-- [x] S14: TUI Config + Translation + Clipboard (Prompts, ClipboardHelper, WinForms)
-- [x] S15A: CompositionRoot (Microsoft.Extensions.DependencyInjection, all services wired)
-- [x] S15B: TranscribeCommand wired (CLI: --list, --query, --remove, --file, mic)
-- [x] S15C: TUI Launch wired (no-args detection, RecordingController owns state, TuiOrchestrator)
-- [x] S15D: Integration Smoke Tests (4 tests, real temp SQLite, mocked APIs)
+- [x] S1-S15: All TDD sub-issues completed (160 unit tests)
+- [x] I1 (#28): Integration Test Infrastructure — new project, LiveTestConfig, CompositionRootTestHelper, trump.mp3 fixture, .sln
+- [x] I2 (#23): STT Integration — Groq Whisper live tests (2 tests)
+- [x] I3 (#24): LLM Integration — All Providers live tests (4 tests: OpenRouter, Cohere, z.ai, translation)
+- [x] I4 (#25): Full Pipeline — File Mode live tests (4 tests: Raw, Cleanup, English, Raw vs Cleanup)
+- [x] I5 (#26): CLI Integration — TranscribeCommand with real DI (4 tests: --file, --list, --query, --remove)
+- [x] I6 (#27): TUI Smoke — Launch & State Wiring (8 tests: construct, callbacks, state transitions, feedback, history CRUD, clipboard)
 
 ## Test Summary
 
-- **160 tests total, 160 passed, 0 failed**
-- Core.Tests: 63 tests
-- Console.Tests: 97 tests
+- **164 unit tests**: Core.Tests (66) + Console.Tests (98)
+- **22 integration tests** (all skip without LIVE_TEST=1): Integration.Tests
+- 1 pre-existing flaky test in Console.Tests (NAudio file lock)
 
-## Architecture
+## Architecture (updated)
 
-- CompositionRoot wires all services via Microsoft.Extensions.DependencyInjection
-- TranscribeCommand uses static Services property set by Program.cs
-- No-args → RunTui() before Spectre CommandApp
-- CLI args → CommandApp<TranscribeCommand> with service resolution
-- TuiOrchestrator wires RecordingController callbacks to AITranscribeTui
+- AITransscribe.Integration.Tests project added to solution
+- InternalsVisibleTo updated to include AITransscribe.Integration.Tests
+- LiveTestConfig gates all integration tests with LIVE_TEST=1
+- CompositionRootTestHelper creates real DI container with temp SQLite
+- Decision override: D31/D32 → integration tests in separate project with real API calls
 
 ## Pending
 
-- Issue #22: Integration tests (sub-issues I1-I6, #28/#23-#27)
+- Close GitHub issues #22, #23-#28
+- Push local commits to origin (6 new commits ahead)
 - README.md
 - Polish and UX refinement
-- Push 3 local commits to origin
 
 ## Blockers
 
-None
+- Pre-existing flaky test: `TranscribeCommandExecutionTests.ExecuteRemove_WithInvalidIndex_ReturnsOne` fails when Services is null
 
 ## Next Session
 
-Implement integration tests starting with I1 (#28), or README.md / push.
+Close GitHub issues, push commits, create README.md.

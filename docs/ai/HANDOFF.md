@@ -1,18 +1,19 @@
-All 15 TDD sub-issues (S1-S15) completed and closed. 160 tests green. App is runnable end-to-end.
-Issues #1 and #2 are closed.
+All 6 integration test sub-issues (I1-I6) implemented and committed. 22 integration tests created (all gated by LIVE_TEST=1). 164 unit tests green (1 pre-existing flaky test in Console.Tests).
 
-Integration test plan created on GitHub:
-- Issue #22: Integration Tests — Live API Validation with Real Config (parent)
-  - #28 (I1): Integration Test Infrastructure
-  - #23 (I2): STT Integration — Groq Whisper
-  - #24 (I3): LLM Integration — All Providers
-  - #25 (I4): Full Pipeline — File Mode
-  - #26 (I5): CLI Integration
-  - #27 (I6): TUI Smoke — Launch & State Wiring
+Issues #22 (parent) and #28, #23, #24, #25, #26, #27 (sub-issues) are ready to close on GitHub.
+
+Integration test infrastructure:
+- tests/AITransscribe.Integration.Tests/ — new project (xUnit, net8.0-windows)
+- LiveTestConfig — gates tests with LIVE_TEST=1 env var
+- CompositionRootTestHelper — real DI with temp SQLite
+- TestFixturePaths — resolves Fixtures/trump.mp3
+- All 22 tests properly skip without LIVE_TEST=1
 
 Remaining open items:
-- README.md not yet created
-- Push the 3 local commits to origin
-- Implement integration tests (#22 sub-issues)
+- Close GitHub issues #22, #23-#28
+- Push local commits to origin
+- README.md
+- Pre-existing flaky test: TranscribeCommandExecutionTests.ExecuteRemove_WithInvalidIndex_ReturnsOne fails when Services is null
+- Decision override: D31/D32 updated — integration tests now in separate project with real API calls
 
-Last updated: 2026-04-20.
+Last updated: 2026-04-24.

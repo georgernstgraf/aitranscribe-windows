@@ -97,8 +97,16 @@ RecordingController is the state machine (Idle/Recording/Processing). AITranscri
 ### D30: Integration tests — direct TranscribeCommand instantiation
 Create TranscribeCommand with mock services directly, not via CommandApp pipeline. Tests the logic, not the Spectre framework.
 
-### D31: Integration tests in AITranscribe.Console.Tests/Integration/
-New subfolder in existing test project. No new .csproj. Tests reference Console project which already references Core.
+### D31: Integration tests in AITranscribe.Integration.Tests/ (OVERRIDDEN)
+~~New subfolder in existing test project. No new .csproj.~~ Overridden: separate project at tests/AITranscribe.Integration.Tests/ for clean separation of LIVE_TEST-gated integration tests from always-run unit tests.
 
-### D32: Integration tests mock APIs, use real temp SQLite
-Mock ISttClient and ILlmClient responses. Use real PromptManager with temp SQLite file. Tests real DB + real service wiring, fake network calls.
+### D32: Integration tests use real API calls gated by LIVE_TEST=1 (OVERRIDDEN)
+~~Mock ISttClient and ILlmClient responses. Use real PromptManager with temp SQLite file.~~ Overridden: integration tests make real API calls (Groq STT, LLM providers) gated by LIVE_TEST=1 env var. Unit tests in Console.Tests/Integration/ continue using mocks.
+
+## 2026-04-24: Integration Test Infrastructure Decisions
+
+### D33: Separate integration test project
+New tests/AITranscribe.Integration.Tests project (xUnit, net8.0-windows) with LiveTestConfig gating. Clean separation from unit tests. InternalsVisibleTo added to Console project.
+
+### D34: trump.mp3 as test fixture
+Existing trump.mp3 (86KB, ~3s) in repo root copied to Fixtures/ for STT integration tests. Groq accepts MP3 natively.
