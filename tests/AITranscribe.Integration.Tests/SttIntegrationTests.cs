@@ -5,10 +5,10 @@ namespace AITranscribe.Integration.Tests;
 
 public class SttIntegrationTests
 {
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task TranscribeAsync_WhisperLargeV3_ReturnsNonEmptyText()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         LiveTestConfig.HasRequiredApiKeys(config).Should().BeTrue("Groq API key must be configured");
@@ -22,10 +22,10 @@ public class SttIntegrationTests
         result.Length.Should().BeGreaterThan(10);
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task TranscribeAsync_WhisperLargeV3Turbo_ReturnsNonEmptyText()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         LiveTestConfig.HasRequiredApiKeys(config).Should().BeTrue("Groq API key must be configured");

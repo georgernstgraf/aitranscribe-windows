@@ -10,10 +10,10 @@ namespace AITranscribe.Integration.Tests;
 
 public class PipelineIntegrationTests
 {
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ProcessFileAsync_RawMode_StoresTranscription()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         LiveTestConfig.HasRequiredApiKeys(config).Should().BeTrue("Groq API key required");
@@ -38,10 +38,10 @@ public class PipelineIntegrationTests
         stored!.Prompt.Should().Be(result.Text);
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ProcessFileAsync_CleanupMode_StoresTranscription()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         LiveTestConfig.HasRequiredApiKeys(config).Should().BeTrue("Groq API key required");
@@ -69,10 +69,10 @@ public class PipelineIntegrationTests
         stored!.Prompt.Should().Be(result.Text);
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ProcessFileAsync_EnglishMode_StoresTranscription()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         LiveTestConfig.HasRequiredApiKeys(config).Should().BeTrue("Groq API key required");
@@ -100,10 +100,10 @@ public class PipelineIntegrationTests
         stored!.Prompt.Should().Be(result.Text);
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ProcessFileAsync_RawDiffersFromCleanup()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         LiveTestConfig.HasRequiredApiKeys(config).Should().BeTrue("Groq API key required");

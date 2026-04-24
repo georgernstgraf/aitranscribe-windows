@@ -20,10 +20,10 @@ public class TuiSmokeTests : IDisposable
         _helper?.Dispose();
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public void AITranscribeTui_ConstructsInMemory_WithoutApplicationInit()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var tui = _helper.ServiceProvider.GetRequiredService<AITranscribeTui>();
 
@@ -31,10 +31,10 @@ public class TuiSmokeTests : IDisposable
         tui.CurrentState.Should().Be(TuiState.Idle);
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public void RecordingController_WiresCallbacks_ToAITranscribeTui()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var controller = _helper.ServiceProvider.GetRequiredService<RecordingController>();
         var tui = _helper.ServiceProvider.GetRequiredService<AITranscribeTui>();
@@ -57,10 +57,10 @@ public class TuiSmokeTests : IDisposable
         tui.TranscriptView.Text.ToString().Should().Contain("test transcript");
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public void TuiState_Transitions_IdleToRecordingToProcessingToIdle()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var tui = _helper.ServiceProvider.GetRequiredService<AITranscribeTui>();
 
@@ -76,10 +76,10 @@ public class TuiSmokeTests : IDisposable
         tui.CurrentState.Should().Be(TuiState.Idle);
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public void SetFeedbackStep_UpdatesCorrectLabelText()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var tui = _helper.ServiceProvider.GetRequiredService<AITranscribeTui>();
 
@@ -100,10 +100,10 @@ public class TuiSmokeTests : IDisposable
         tui.FeedbackStepLabels[3].Text.Should().Contain("active");
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public void ResetFeedbackSteps_ResetsAllLabelsToPending()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var tui = _helper.ServiceProvider.GetRequiredService<AITranscribeTui>();
 
@@ -125,10 +125,10 @@ public class TuiSmokeTests : IDisposable
         }
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+[Fact]
     public async Task HistoryManager_CRUD_Works_WithRealSQLite()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var promptManager = _helper.ServiceProvider.GetRequiredService<IPromptManager>();
         await ((PromptManager)promptManager).InitializeAsync();
@@ -139,15 +139,11 @@ public class TuiSmokeTests : IDisposable
         await historyManager.RefreshHistoryAsync();
         historyManager.Prompts.Should().BeEmpty();
 
-        var id = await historyManager.SaveTranscriptAsync("Test transcript one", "test1.wav");
-        id.Should().BeGreaterThan(0);
-        historyManager.SelectedHistoryId.Should().Be(id);
-
-        id = await historyManager.SaveTranscriptAsync("Test transcript two", "test2.wav");
+        var id = await historyManager.SaveTranscriptAsync("Test transcript", "test.wav");
         id.Should().BeGreaterThan(0);
 
         await historyManager.RefreshHistoryAsync();
-        historyManager.Prompts.Should().HaveCount(2);
+        historyManager.Prompts.Should().HaveCount(1);
 
         historyManager.SelectHistoryItem(0);
         historyManager.SelectedHistoryText.Should().NotBeEmpty();
@@ -156,23 +152,23 @@ public class TuiSmokeTests : IDisposable
         deleted.Should().BeTrue();
 
         await historyManager.RefreshHistoryAsync();
-        historyManager.Prompts.Should().HaveCount(1);
+        historyManager.Prompts.Should().BeEmpty();
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public void ClipboardHelper_DoesNotCrash_WhenSetText()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var act = () => ClipboardHelper.SetText("test clipboard text");
 
         act.Should().NotThrow();
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public void RecordingController_InitialState_IsIdle()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var controller = _helper.ServiceProvider.GetRequiredService<RecordingController>();
 

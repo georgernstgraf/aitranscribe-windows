@@ -31,10 +31,10 @@ public class CliIntegrationTests : IDisposable
         _helper?.Dispose();
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ExecuteFile_Returns0_AndStoresTranscription()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         LiveTestConfig.HasRequiredApiKeys(config).Should().BeTrue("Groq API key required");
@@ -56,10 +56,10 @@ public class CliIntegrationTests : IDisposable
         all[0].Prompt.Should().NotBeNullOrWhiteSpace();
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ExecuteList_Returns0_WithPopulatedDB()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var pm = _helper.ServiceProvider.GetRequiredService<IPromptManager>();
         await ((PromptManager)pm).InitializeAsync();
@@ -76,10 +76,10 @@ public class CliIntegrationTests : IDisposable
         result.Should().Be(0);
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ExecuteQuery_Returns0_AndReturnsOldestPrompt()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var pm = _helper.ServiceProvider.GetRequiredService<IPromptManager>();
         await ((PromptManager)pm).InitializeAsync();
@@ -100,10 +100,10 @@ public class CliIntegrationTests : IDisposable
         remaining[0].Prompt.Should().Be("First prompt");
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ExecuteRemove_Returns0_AndRemovesPrompt()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var pm = _helper.ServiceProvider.GetRequiredService<IPromptManager>();
         await ((PromptManager)pm).InitializeAsync();

@@ -7,10 +7,10 @@ namespace AITranscribe.Integration.Tests;
 
 public class LlmIntegrationTests
 {
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ProcessAsync_OpenRouter_ReturnsProcessedText()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         if (string.IsNullOrEmpty(config.OpenRouter.ApiKey)) return;
@@ -27,10 +27,10 @@ public class LlmIntegrationTests
         result.Should().NotContain("Here is the processed text");
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ProcessAsync_Cohere_ReturnsProcessedText()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         if (string.IsNullOrEmpty(config.Cohere.ApiKey)) return;
@@ -47,10 +47,10 @@ public class LlmIntegrationTests
         result.Should().NotContain("Here is the processed text");
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ProcessAsync_ZAi_ReturnsProcessedText()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         if (string.IsNullOrEmpty(config.ZAi.ApiKey)) return;
@@ -67,10 +67,10 @@ public class LlmIntegrationTests
         result.Should().NotContain("Here is the processed text");
     }
 
-    [Fact(Skip = LiveTestConfig.SkipReason)]
+    [Fact]
     public async Task ProcessAsync_OpenRouter_TranslationToGerman()
     {
-        if (!LiveTestConfig.IsLiveTest) return;
+        Assert.SkipUnless(LiveTestConfig.IsLiveTest, LiveTestConfig.SkipReason);
 
         var config = LiveTestConfig.LoadConfig();
         if (string.IsNullOrEmpty(config.OpenRouter.ApiKey)) return;
