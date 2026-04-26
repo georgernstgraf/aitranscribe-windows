@@ -1,6 +1,10 @@
 using AITranscribe.Console.Tui;
 using FluentAssertions;
-using Terminal.Gui;
+using Terminal.Gui.App;
+using Terminal.Gui.Drawing;
+using Terminal.Gui.Input;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
 
 namespace AITranscribe.Console.Tests.Tui;
 
@@ -14,17 +18,17 @@ public class ConfigPanelTests
     }
 
     [Fact]
-    public void ConfigPanel_HasSourceModeRadioGroup()
+    public void ConfigPanel_HasSourceModeOptionSelector()
     {
         _tui.SourceRadioGroup.Should().NotBeNull();
-        _tui.SourceRadioGroup.Should().BeOfType<RadioGroup>();
+        _tui.SourceRadioGroup.Should().BeOfType<OptionSelector>();
     }
 
     [Fact]
-    public void ConfigPanel_HasPreProcessModeRadioGroup()
+    public void ConfigPanel_HasPreProcessModeOptionSelector()
     {
         _tui.PreprocessRadioGroup.Should().NotBeNull();
-        _tui.PreprocessRadioGroup.Should().BeOfType<RadioGroup>();
+        _tui.PreprocessRadioGroup.Should().BeOfType<OptionSelector>();
     }
 
     [Fact]

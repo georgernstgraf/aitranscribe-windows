@@ -1,4 +1,8 @@
-using Terminal.Gui;
+using Terminal.Gui.App;
+using Terminal.Gui.Drawing;
+using Terminal.Gui.Input;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
 
 namespace AITranscribe.Console.Tui;
 
@@ -16,6 +20,7 @@ public class AITranscribeTui : Window
 
     public Action? OnToggleRecordingRequested { get; set; }
     public Action? OnAppendRecordingRequested { get; set; }
+    public Action? OnResized { get; set; }
     public Func<string, string, System.Threading.Tasks.Task<long?>>? OnSaveTranscriptRequested { get; set; }
 
     public TextView TranscriptView { get; }
@@ -23,19 +28,27 @@ public class AITranscribeTui : Window
     public Label StatusLabel { get; }
     public Label FlashLabel { get; }
     public Label[] FeedbackStepLabels { get; }
-    public RadioGroup SourceRadioGroup { get; }
-    public RadioGroup PreprocessRadioGroup { get; }
+    public OptionSelector SourceRadioGroup { get; }
+    public OptionSelector PreprocessRadioGroup { get; }
     public TextField FilePathField { get; }
     public TextField SttModelField { get; }
     public TextField LlmModelField { get; }
 
     private readonly Dictionary<string, string> _feedbackState;
     private object? _clockTimeout;
+    private int _lastResizeWidth;
+    private int _lastResizeHeight;
+    private View[] _focusableViews = [];
+    private IApplication? _app;
+
+    public bool IsPaneFocusMode => _focusableViews.Any(v => v.HasFocus);
 
     public AITranscribeTui() : base()
     {
         Title = "AITranscribe";
         _feedbackState = FeedbackSteps.ToDictionary(s => s.Id, _ => "pending");
+
+        CanFocus = true;
 
         var primaryColumn = new View()
         {
@@ -120,7 +133,10 @@ public class AITranscribeTui : Window
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
-            Height = Dim.Fill()
+            Height = Dim.Fill(),
+            WordWrap = true,
+            CanFocus = true,
+            TabStop = TabBehavior.TabStop
         };
 
         transcriptFrame.Add(TranscriptView);
@@ -140,7 +156,9 @@ public class AITranscribeTui : Window
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
-            Height = Dim.Fill()
+            Height = Dim.Fill(),
+            CanFocus = true,
+            TabStop = TabBehavior.TabStop
         };
 
         historyFrame.Add(HistoryList);
@@ -154,13 +172,15 @@ public class AITranscribeTui : Window
             Height = 10
         };
 
-        SourceRadioGroup = new RadioGroup()
+        SourceRadioGroup = new OptionSelector()
         {
-            RadioLabels = ["Microphone", "Filesystem file"],
+            Labels = ["Microphone", "Filesystem file"],
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
-            SelectedItem = 0
+            Value = 0,
+            CanFocus = true,
+            TabStop = TabBehavior.TabStop
         };
 
         var fileLabel = new Label()
@@ -178,16 +198,20 @@ public class AITranscribeTui : Window
             X = Pos.Right(fileLabel),
             Y = 2,
             Width = Dim.Fill(),
-            Height = 1
+            Height = 1,
+            CanFocus = true,
+            TabStop = TabBehavior.TabStop
         };
 
-        PreprocessRadioGroup = new RadioGroup()
+        PreprocessRadioGroup = new OptionSelector()
         {
-            RadioLabels = ["Raw transcription", "Cleanup / Preserve", "Cleanup + English"],
+            Labels = ["Raw transcription", "Cleanup / Preserve", "Cleanup + English"],
             X = 0,
             Y = 4,
             Width = Dim.Fill(),
-            SelectedItem = 2
+            Value = 2,
+            CanFocus = true,
+            TabStop = TabBehavior.TabStop
         };
 
         configFrame.Add(SourceRadioGroup, fileLabel, FilePathField, PreprocessRadioGroup);
@@ -216,7 +240,9 @@ public class AITranscribeTui : Window
             X = Pos.Right(sttLabel),
             Y = 0,
             Width = Dim.Fill(),
-            Height = 1
+            Height = 1,
+            CanFocus = true,
+            TabStop = TabBehavior.TabStop
         };
 
         var llmLabel = new Label()
@@ -234,21 +260,38 @@ public class AITranscribeTui : Window
             X = Pos.Right(llmLabel),
             Y = 1,
             Width = Dim.Fill(),
-            Height = 1
+            Height = 1,
+            CanFocus = true,
+            TabStop = TabBehavior.TabStop
         };
 
         extraFrame.Add(sttLabel, SttModelField, llmLabel, LlmModelField);
         sidebarColumn.Add(historyFrame, configFrame, extraFrame);
         Add(primaryColumn, sidebarColumn);
 
+        _focusableViews = [TranscriptView, HistoryList, SourceRadioGroup, FilePathField, PreprocessRadioGroup, SttModelField, LlmModelField];
+
+        foreach (var view in _focusableViews)
+        {
+            view.HasFocusChanged += (_, _) => UpdateStatusDisplay();
+        }
+
         SetupKeyBindings();
     }
 
-    public void StartClock()
+    public void StartClock(IApplication? app)
     {
-        _clockTimeout = Application.AddTimeout(TimeSpan.FromSeconds(1), () =>
+        _app = app;
+        if (app is null) return;
+        _clockTimeout = app.AddTimeout(TimeSpan.FromSeconds(1), () =>
         {
             Title = $"AITranscribe  {DateTime.Now:HH:mm:ss}";
+            if (Frame.Width != _lastResizeWidth || Frame.Height != _lastResizeHeight)
+            {
+                _lastResizeWidth = Frame.Width;
+                _lastResizeHeight = Frame.Height;
+                OnResized?.Invoke();
+            }
             return true;
         });
     }
@@ -257,7 +300,7 @@ public class AITranscribeTui : Window
     {
         if (_clockTimeout != null)
         {
-            Application.RemoveTimeout(_clockTimeout);
+            _app?.RemoveTimeout(_clockTimeout);
             _clockTimeout = null;
         }
     }
@@ -269,7 +312,22 @@ public class AITranscribeTui : Window
 
     private void OnKeyDown(object? sender, Key e)
     {
-        if (e == Key.Space)
+        if (e == Key.Tab)
+        {
+            FocusNext();
+            e.Handled = true;
+        }
+        else if (e == Key.Esc)
+        {
+            foreach (var v in _focusableViews)
+                v.HasFocus = false;
+            UpdateStatusDisplay();
+            e.Handled = true;
+        }
+        else if (IsPaneFocusMode)
+        {
+        }
+        else if (e == Key.Space)
         {
             ToggleRecording();
             e.Handled = true;
@@ -291,9 +349,18 @@ public class AITranscribeTui : Window
         }
         else if (e == Key.Q)
         {
-            Application.RequestStop();
+            _app?.RequestStop();
             e.Handled = true;
         }
+    }
+
+    private void FocusNext()
+    {
+        if (_focusableViews.Length == 0) return;
+        var current = _focusableViews.FirstOrDefault(v => v.HasFocus);
+        var idx = current is null ? -1 : Array.IndexOf(_focusableViews, current);
+        idx = (idx + 1) % _focusableViews.Length;
+        _focusableViews[idx].SetFocus();
     }
 
     public void ToggleRecording()
@@ -331,7 +398,7 @@ public class AITranscribeTui : Window
             var text = TranscriptView.Text.ToString();
             if (!string.IsNullOrEmpty(text))
             {
-                Clipboard.Contents = text;
+                _app?.Clipboard?.SetClipboardData(text);
                 FlashLabel.Text = "Copied to clipboard.";
             }
         }
@@ -349,6 +416,7 @@ public class AITranscribeTui : Window
 
     public void UpdateStatusDisplay()
     {
+        var mode = IsPaneFocusMode ? "Pane Focus Mode" : "Command Mode";
         var activityLabel = CurrentState switch
         {
             TuiState.Idle => "Ready",
@@ -356,15 +424,17 @@ public class AITranscribeTui : Window
             TuiState.Processing => "Processing",
             _ => "Ready"
         };
-        StatusLabel.Text = $"Command Mode | {activityLabel}";
+        StatusLabel.Text = $"{mode} | {activityLabel}";
 
-        FlashLabel.Text = CurrentState switch
-        {
-            TuiState.Idle => "Press Space to Start Recording",
-            TuiState.Recording => "",
-            TuiState.Processing => "Processing recording...",
-            _ => ""
-        };
+        FlashLabel.Text = IsPaneFocusMode
+            ? "Escape to return to Command Mode"
+            : CurrentState switch
+            {
+                TuiState.Idle => "Press Space to Start Recording",
+                TuiState.Recording => "",
+                TuiState.Processing => "Processing recording...",
+                _ => ""
+            };
     }
 
     public void SetFeedbackStep(string stepId, string status)

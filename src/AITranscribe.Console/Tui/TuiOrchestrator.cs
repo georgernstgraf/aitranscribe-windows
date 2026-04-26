@@ -3,17 +3,18 @@ using AITranscribe.Core.Configuration;
 using AITranscribe.Core.Models;
 using AITranscribe.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Terminal.Gui;
+using Terminal.Gui.App;
+using Terminal.Gui.Views;
 
 namespace AITranscribe.Console.Tui;
 
 public static class TuiOrchestrator
 {
-    public static void WireTui(AITranscribeTui tui, RecordingController controller, HistoryManager historyManager, AppConfig config, IServiceProvider services)
+    public static void WireTui(AITranscribeTui tui, RecordingController controller, HistoryManager historyManager, AppConfig config, IServiceProvider services, IApplication app)
     {
         PopulateConfigFields(tui, config);
 
-        controller.InvokeOnMainThread = action => Application.Invoke(action);
+        controller.InvokeOnMainThread = action => app.Invoke(action);
 
         controller.OnStateChanged = state => tui.SetState(state);
 
@@ -29,7 +30,6 @@ public static class TuiOrchestrator
 
         controller.OnProcessingComplete = result =>
         {
-            tui.ResetFeedbackSteps();
             tui.SetFeedbackStep("summary", "active");
 
             _ = Task.Run(async () =>
@@ -67,23 +67,36 @@ public static class TuiOrchestrator
 
         controller.SettingsProvider = () => BuildSettings(tui, config, historyManager);
 
-        tui.OnToggleRecordingRequested = () => controller.ToggleRecording();
+        tui.OnToggleRecordingRequested = () =>
+        {
+            tui.ResetFeedbackSteps();
+            controller.ToggleRecording();
+        };
 
         tui.OnAppendRecordingRequested = () =>
         {
+            tui.ResetFeedbackSteps();
             historyManager.IsAppendMode = true;
             controller.ToggleRecording();
         };
 
-        tui.OnSaveTranscriptRequested = (text, _) => historyManager.SaveTranscriptAsync(text, "");
-
-        tui.HistoryList.OpenSelectedItem += (_, args) =>
+        tui.OnResized = () =>
         {
-            historyManager.SelectHistoryItem(args.Item);
+            _ = Task.Run(async () =>
+            {
+                try { await historyManager.RefreshHistoryAsync(); } catch { }
+            });
         };
 
-        if (Application.Initialized)
-            tui.StartClock();
+        tui.OnSaveTranscriptRequested = (text, _) => historyManager.SaveTranscriptAsync(text, "");
+
+        tui.HistoryList.Activated += (_, args) =>
+        {
+            if (tui.HistoryList.SelectedItem is int idx)
+                historyManager.SelectHistoryItem(idx);
+        };
+
+        tui.StartClock(app);
 
         _ = Task.Run(async () =>
         {
@@ -93,7 +106,7 @@ public static class TuiOrchestrator
 
     internal static TranscriptionSettings BuildSettings(AITranscribeTui tui, AppConfig config, HistoryManager historyManager)
     {
-        var preProcessMode = tui.PreprocessRadioGroup.SelectedItem switch
+        var preProcessMode = (tui.PreprocessRadioGroup.Value ?? 2) switch
         {
             0 => PreProcessMode.Raw,
             1 => PreProcessMode.Cleanup,
@@ -161,7 +174,7 @@ public static class TuiOrchestrator
         tui.SttModelField.Text = config.Groq.SttModel;
         tui.LlmModelField.Text = config.Llm.Model;
         tui.FilePathField.Text = config.LastFilePath;
-        tui.SourceRadioGroup.SelectedItem = config.InputSource == "file" ? 1 : 0;
-        tui.PreprocessRadioGroup.SelectedItem = (int)config.PreProcessMode;
+        tui.SourceRadioGroup.Value = config.InputSource == "file" ? 1 : 0;
+        tui.PreprocessRadioGroup.Value = (int)config.PreProcessMode;
     }
 }

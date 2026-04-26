@@ -4,7 +4,8 @@ using AITranscribe.Core.Configuration;
 using AITranscribe.Core.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
-using Terminal.Gui;
+using Terminal.Gui.App;
+using Terminal.Gui.Views;
 
 namespace AITranscribe.Console;
 
@@ -41,11 +42,11 @@ internal static class Program
         var historyManager = services.GetRequiredService<HistoryManager>();
         var config = services.GetRequiredService<AppConfig>();
 
-        TuiOrchestrator.WireTui(tui, controller, historyManager, config, services);
-
-        Application.Init();
-        Application.Run(tui);
-        Application.Shutdown();
+        IApplication app = Application.Create().Init();
+        TuiOrchestrator.WireTui(tui, controller, historyManager, config, services, app);
+        app.Run(tui);
+        tui.Dispose();
+        app.Dispose();
         return 0;
     }
 

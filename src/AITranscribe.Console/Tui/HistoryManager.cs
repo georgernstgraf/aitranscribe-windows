@@ -1,5 +1,6 @@
 using AITranscribe.Core.Data;
-using Terminal.Gui;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
 
 namespace AITranscribe.Console.Tui;
 
@@ -26,15 +27,19 @@ public class HistoryManager
         var prompts = await _promptManager.GetRecentAsync(null, ct);
         _prompts = prompts.ToList();
 
+        var frameWidth = _tui.HistoryList.Frame.Width;
+        if (frameWidth < 20)
+            frameWidth = 80;
         var items = new System.Collections.ObjectModel.ObservableCollection<string>();
         foreach (var prompt in _prompts)
         {
-            var preview = !string.IsNullOrEmpty(prompt.Summary)
+            var previewSource = !string.IsNullOrEmpty(prompt.Summary)
                 ? prompt.Summary.Replace("\n", " ")
                 : prompt.Prompt.Replace("\n", " ");
-            if (preview.Length > 40)
-                preview = preview[..40] + "...";
-            items.Add($"#{prompt.Id}: {preview}");
+            var prefix = $"#{prompt.Id}: ";
+            var textWidth = Math.Max(8, frameWidth - prefix.Length - 2);
+            var shortened = Shorten(previewSource, textWidth);
+            items.Add($"{prefix}{shortened}");
         }
 
         _tui.HistoryList.SetSource(items);
@@ -47,6 +52,23 @@ public class HistoryManager
                 _tui.HistoryList.SelectedItem = selectedIndex;
             }
         }
+    }
+
+    private static string Shorten(string text, int width)
+    {
+        var collapsed = string.Join(" ", text.Split([' ', '\n', '\r', '\t'], StringSplitOptions.RemoveEmptyEntries));
+        if (collapsed.Length <= width)
+            return collapsed;
+
+        if (width <= 8)
+            return collapsed[..width];
+
+        var slice = collapsed[..(width - 4)];
+        var lastSpace = slice.LastIndexOf(' ');
+        if (lastSpace > width / 2)
+            slice = collapsed[..lastSpace];
+
+        return slice + " ...";
     }
 
     public async Task<long?> SaveTranscriptAsync(string text, string filename, CancellationToken ct = default)

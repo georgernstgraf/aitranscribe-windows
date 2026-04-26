@@ -1,6 +1,10 @@
 using AITranscribe.Console.Tui;
 using FluentAssertions;
-using Terminal.Gui;
+using Terminal.Gui.App;
+using Terminal.Gui.Drawing;
+using Terminal.Gui.Input;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
 
 namespace AITranscribe.Console.Tests.Tui;
 
@@ -54,9 +58,9 @@ public class AITranscribeTuiTests
     public void AITranscribeTui_HasConfigWidgets()
     {
         _tui.SourceRadioGroup.Should().NotBeNull();
-        _tui.SourceRadioGroup.Should().BeOfType<RadioGroup>();
+        _tui.SourceRadioGroup.Should().BeOfType<OptionSelector>();
         _tui.PreprocessRadioGroup.Should().NotBeNull();
-        _tui.PreprocessRadioGroup.Should().BeOfType<RadioGroup>();
+        _tui.PreprocessRadioGroup.Should().BeOfType<OptionSelector>();
         _tui.FilePathField.Should().NotBeNull();
         _tui.FilePathField.Should().BeOfType<TextField>();
         _tui.SttModelField.Should().NotBeNull();
