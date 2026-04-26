@@ -471,6 +471,7 @@ public class TranscribeCommandExecutionTests : IDisposable
             services.AddSingleton(mockStt.Object);
             services.AddSingleton(mockLlm.Object);
             services.AddSingleton(config);
+            services.AddSingleton(PromptsConfig.CreateDefault());
             services.AddSingleton<TranscriptionService>();
             using var sp = services.BuildServiceProvider();
             TranscribeCommand.Services = sp;

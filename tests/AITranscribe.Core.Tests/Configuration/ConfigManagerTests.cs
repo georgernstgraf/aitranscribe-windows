@@ -65,7 +65,8 @@ public class ConfigManagerTests : IDisposable
             true,
             new OpenRouterConfig("or-key", "anthropic/claude-3-haiku"),
             new CohereConfig("co-key", "command-r"),
-            new ZAiConfig("zai-key", "glm-5")
+            new ZAiConfig("zai-key", "glm-5"),
+            PromptsConfig.CreateDefault()
         );
 
         manager.Save(original);
@@ -210,7 +211,8 @@ public class ConfigManagerTests : IDisposable
             false,
             new OpenRouterConfig("or-saved", "anthropic/claude-3-haiku"),
             new CohereConfig("", "command-r"),
-            new ZAiConfig("", "glm-5")
+            new ZAiConfig("", "glm-5"),
+            PromptsConfig.CreateDefault()
         );
         manager1.Save(custom);
 

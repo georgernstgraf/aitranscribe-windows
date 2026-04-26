@@ -1,4 +1,5 @@
 using AITranscribe.Core.Api;
+using AITranscribe.Core.Configuration;
 using AITranscribe.Core.Data;
 using AITranscribe.Core.Models;
 using AITranscribe.Core.Services;
@@ -12,6 +13,7 @@ public class TranscriptionServiceTests
     private readonly Mock<ISttClient> _sttClient;
     private readonly Mock<ILlmClient> _llmClient;
     private readonly Mock<IPromptManager> _promptManager;
+    private readonly PromptsConfig _prompts;
     private readonly TranscriptionService _service;
 
     public TranscriptionServiceTests()
@@ -19,7 +21,8 @@ public class TranscriptionServiceTests
         _sttClient = new Mock<ISttClient>();
         _llmClient = new Mock<ILlmClient>();
         _promptManager = new Mock<IPromptManager>();
-        _service = new TranscriptionService(_sttClient.Object, _llmClient.Object, _promptManager.Object);
+        _prompts = PromptsConfig.CreateDefault();
+        _service = new TranscriptionService(_sttClient.Object, _llmClient.Object, _promptManager.Object, _prompts);
     }
 
     private TranscriptionSettings DefaultSettings(PreProcessMode mode = PreProcessMode.English) => new(
@@ -194,9 +197,10 @@ public class TranscriptionServiceTests
     [Fact]
     public void Constructor_NullDependencies_Throws()
     {
-        Assert.Throws<ArgumentNullException>(() => new TranscriptionService(null!, _llmClient.Object, _promptManager.Object));
-        Assert.Throws<ArgumentNullException>(() => new TranscriptionService(_sttClient.Object, null!, _promptManager.Object));
-        Assert.Throws<ArgumentNullException>(() => new TranscriptionService(_sttClient.Object, _llmClient.Object, null!));
+        Assert.Throws<ArgumentNullException>(() => new TranscriptionService(null!, _llmClient.Object, _promptManager.Object, _prompts));
+        Assert.Throws<ArgumentNullException>(() => new TranscriptionService(_sttClient.Object, null!, _promptManager.Object, _prompts));
+        Assert.Throws<ArgumentNullException>(() => new TranscriptionService(_sttClient.Object, _llmClient.Object, null!, _prompts));
+        Assert.Throws<ArgumentNullException>(() => new TranscriptionService(_sttClient.Object, _llmClient.Object, _promptManager.Object, null!));
     }
 
     private static byte[] CreateMinimalWav(int sampleCount = 100)

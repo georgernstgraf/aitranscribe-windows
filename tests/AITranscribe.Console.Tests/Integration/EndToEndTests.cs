@@ -72,7 +72,7 @@ public class EndToEndTests : IDisposable
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), default))
             .ReturnsAsync("Hello world processed");
 
-        var svc = new TranscriptionService(mockStt.Object, mockLlm.Object, promptManager);
+        var svc = new TranscriptionService(mockStt.Object, mockLlm.Object, promptManager, PromptsConfig.CreateDefault());
 
         var wavPath = CreateMinimalWavFile(_tempDir);
         var settings = new TranscriptionSettings(
@@ -110,6 +110,7 @@ public class EndToEndTests : IDisposable
         services.AddSingleton(mockStt.Object);
         services.AddSingleton(mockLlm.Object);
         services.AddSingleton(AppConfig.CreateDefault());
+        services.AddSingleton(PromptsConfig.CreateDefault());
         services.AddSingleton<TranscriptionService>();
         using var sp = services.BuildServiceProvider();
         TranscribeCommand.Services = sp;
@@ -148,6 +149,7 @@ public class EndToEndTests : IDisposable
         services.AddSingleton(mockStt.Object);
         services.AddSingleton(mockLlm.Object);
         services.AddSingleton(config);
+        services.AddSingleton(PromptsConfig.CreateDefault());
         services.AddSingleton<TranscriptionService>();
         using var sp = services.BuildServiceProvider();
         TranscribeCommand.Services = sp;

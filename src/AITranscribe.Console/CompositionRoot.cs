@@ -29,9 +29,13 @@ public static class CompositionRoot
         services.AddSingleton(config);
 
         services.AddSingleton<ISttClient>(sp => new GroqSttClient(config.Groq.ApiKey));
-        services.AddSingleton<ILlmClient, LlmClient>();
+        services.AddSingleton<ILlmClient>(sp => new LlmClient(config.Prompts.SystemPrompt));
         services.AddSingleton<IPromptManager>(sp => new PromptManager(dbPath));
-        services.AddSingleton<TranscriptionService>();
+        services.AddSingleton(sp => new TranscriptionService(
+            sp.GetRequiredService<ISttClient>(),
+            sp.GetRequiredService<ILlmClient>(),
+            sp.GetRequiredService<IPromptManager>(),
+            config.Prompts));
         services.AddSingleton<IAudioCapture, WasapiAudioCapture>();
         services.AddSingleton<AudioRecorder>();
         services.AddSingleton<AITranscribeTui>();

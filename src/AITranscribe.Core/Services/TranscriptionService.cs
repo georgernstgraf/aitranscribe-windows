@@ -1,5 +1,6 @@
 using AITranscribe.Core.Api;
 using AITranscribe.Core.Audio;
+using AITranscribe.Core.Configuration;
 using AITranscribe.Core.Data;
 using AITranscribe.Core.Models;
 using NAudio.Wave;
@@ -11,22 +12,14 @@ public class TranscriptionService
     private readonly ISttClient _sttClient;
     private readonly ILlmClient _llmClient;
     private readonly IPromptManager _promptManager;
+    private readonly PromptsConfig _prompts;
 
-    private const string SummaryPrompt =
-        "Create a concise summary of the transcription in 70 to 80 characters. " +
-        "Output only the summary text with no quotes, labels, or extra commentary.";
-
-    private const string CleanupPrompt =
-        "Please correct grammatical errors, remove filler words, and structure the following text clearly.";
-
-    private const string EnglishPrompt =
-        "Please translate the following text to English, correct grammatical errors, remove filler words, and structure it clearly.";
-
-    public TranscriptionService(ISttClient sttClient, ILlmClient llmClient, IPromptManager promptManager)
+    public TranscriptionService(ISttClient sttClient, ILlmClient llmClient, IPromptManager promptManager, PromptsConfig prompts)
     {
         _sttClient = sttClient ?? throw new ArgumentNullException(nameof(sttClient));
         _llmClient = llmClient ?? throw new ArgumentNullException(nameof(llmClient));
         _promptManager = promptManager ?? throw new ArgumentNullException(nameof(promptManager));
+        _prompts = prompts ?? throw new ArgumentNullException(nameof(prompts));
     }
 
     public async Task<Transcription> ProcessMicAudioAsync(
@@ -127,7 +120,7 @@ public class TranscriptionService
         if (string.IsNullOrWhiteSpace(text))
             throw new InvalidOperationException("Cannot generate summary for empty text.");
 
-        var summary = await _llmClient.ProcessAsync(text, SummaryPrompt, model, baseUrl, apiKey, ct);
+        var summary = await _llmClient.ProcessAsync(text, _prompts.SummaryPrompt, model, baseUrl, apiKey, ct);
         summary = summary.Trim();
 
         await _promptManager.UpdateSummaryAsync(promptId, summary, ct);
@@ -147,8 +140,8 @@ public class TranscriptionService
             throw new ArgumentException("Text to translate cannot be empty.");
 
         var prompt = targetLanguage.Equals("german", StringComparison.OrdinalIgnoreCase)
-            ? "Translate the following text to German. Output ONLY the translated text with no introductory remarks or explanations."
-            : "Translate the following text to English. Output ONLY the translated text with no introductory remarks or explanations.";
+            ? _prompts.TranslateToGermanPrompt
+            : _prompts.TranslateToEnglishPrompt;
 
         var translated = await _llmClient.ProcessAsync(cleaned, prompt, model, baseUrl, apiKey, ct);
         return translated.Trim();
@@ -173,12 +166,12 @@ public class TranscriptionService
         }
 
         feedbackCallback?.Invoke("post_process", "active");
-        var systemPrompt = settings.PreProcessMode == PreProcessMode.Cleanup
-            ? CleanupPrompt
-            : EnglishPrompt;
+        var taskPrompt = settings.PreProcessMode == PreProcessMode.Cleanup
+            ? _prompts.CleanupPrompt
+            : _prompts.EnglishPrompt;
 
         var result = await _llmClient.ProcessAsync(
-            rawText, systemPrompt, settings.LlmModel, settings.LlmBaseUrl, settings.LlmApiKey, ct);
+            rawText, taskPrompt, settings.LlmModel, settings.LlmBaseUrl, settings.LlmApiKey, ct);
 
         feedbackCallback?.Invoke("post_process", "done");
         return result;

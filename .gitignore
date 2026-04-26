@@ -19,3 +19,6 @@ Thumbs.db
 
 ## AI knowledge (solutions only)
 docs/ai/*_solutions.md
+
+## Publish output
+publish/

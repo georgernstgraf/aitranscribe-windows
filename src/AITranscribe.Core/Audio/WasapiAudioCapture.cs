@@ -1,4 +1,5 @@
 using NAudio.CoreAudioApi;
+using NAudio.Wave;
 
 namespace AITranscribe.Core.Audio;
 
@@ -13,11 +14,22 @@ public class WasapiAudioCapture : IAudioCapture, IDisposable
 
     public void Start()
     {
-        _buffer.SetLength(0);
-        _capture = new WasapiCapture();
-        _capture.DataAvailable += OnDataAvailable;
-        _capture.StartRecording();
-        _isRecording = true;
+        try
+        {
+            _buffer.SetLength(0);
+            _capture = new WasapiCapture();
+            _capture.WaveFormat = new WaveFormat(44100, 16, 1);
+            _capture.DataAvailable += OnDataAvailable;
+            _capture.StartRecording();
+            _isRecording = true;
+        }
+        catch (Exception ex)
+        {
+            _capture?.Dispose();
+            _capture = null;
+            throw new InvalidOperationException(
+                "Failed to start audio capture. Ensure a microphone is connected and not in use by another application.", ex);
+        }
     }
 
     public void Stop()

@@ -1,6 +1,7 @@
 using AITranscribe.Console.Tui;
 using AITranscribe.Core.Api;
 using AITranscribe.Core.Audio;
+using AITranscribe.Core.Configuration;
 using AITranscribe.Core.Data;
 using AITranscribe.Core.Services;
 using FluentAssertions;
@@ -23,7 +24,7 @@ public class RecordingControllerTests
         var mockStt = new Mock<ISttClient>();
         var mockLlm = new Mock<ILlmClient>();
         var mockPrompt = new Mock<IPromptManager>();
-        var service = new TranscriptionService(mockStt.Object, mockLlm.Object, mockPrompt.Object);
+        var service = new TranscriptionService(mockStt.Object, mockLlm.Object, mockPrompt.Object, PromptsConfig.CreateDefault());
 
         _controller = new RecordingController(_recorder, service);
     }

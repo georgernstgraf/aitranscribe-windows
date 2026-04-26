@@ -1,4 +1,4 @@
-using AITranscribe.Console.Tui;
+using AITranscribe.Core.Configuration;
 using FluentAssertions;
 
 namespace AITranscribe.Console.Tests.Tui;
@@ -8,7 +8,7 @@ public class TranslationTests
     [Fact]
     public void TranslateToGermanPrompt_MatchesPython()
     {
-        Prompts.TranslateToGermanPrompt.Should().Be(
+        PromptsConfig.CreateDefault().TranslateToGermanPrompt.Should().Be(
             "Translate the following text to German. " +
             "Output ONLY the translated text with no introductory remarks or explanations."
         );
@@ -17,7 +17,7 @@ public class TranslationTests
     [Fact]
     public void TranslateToEnglishPrompt_MatchesPython()
     {
-        Prompts.TranslateToEnglishPrompt.Should().Be(
+        PromptsConfig.CreateDefault().TranslateToEnglishPrompt.Should().Be(
             "Translate the following text to English. " +
             "Output ONLY the translated text with no introductory remarks or explanations."
         );

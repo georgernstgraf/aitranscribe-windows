@@ -55,8 +55,14 @@ public class ConfigManager
         if (File.Exists(_configPath))
         {
             var json = File.ReadAllText(_configPath);
-            return JsonSerializer.Deserialize<AppConfig>(json, JsonOptions)
+            var config = JsonSerializer.Deserialize<AppConfig>(json, JsonOptions)
                 ?? AppConfig.CreateDefault();
+            if (config.Prompts is null)
+            {
+                config = config with { Prompts = PromptsConfig.CreateDefault() };
+                Save(config);
+            }
+            return config;
         }
 
         var migrated = TryMigrateFromPython();
@@ -146,7 +152,8 @@ public class ConfigManager
             verbose,
             new OpenRouterConfig(openRouterApiKey, openRouterModel),
             new CohereConfig(cohereApiKey, cohereModel),
-            new ZAiConfig(zaiApiKey, zaiModel)
+            new ZAiConfig(zaiApiKey, zaiModel),
+            PromptsConfig.CreateDefault()
         );
     }
 

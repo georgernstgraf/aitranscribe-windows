@@ -39,7 +39,8 @@ public class AppConfigTests
             true,
             new OpenRouterConfig("or-key", "anthropic/claude-3-haiku"),
             new CohereConfig("co-key", "command-r"),
-            new ZAiConfig("zai-key", "glm-5")
+            new ZAiConfig("zai-key", "glm-5"),
+            PromptsConfig.CreateDefault()
         );
 
         config.Groq.ApiKey.Should().Be("sk-test");

@@ -55,7 +55,7 @@ public class AITranscribeTui : Window
 
         var statusFrame = new FrameView()
         {
-            Title = "Status",
+            Title = " Status ",
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
@@ -84,7 +84,7 @@ public class AITranscribeTui : Window
 
         var feedbackFrame = new FrameView()
         {
-            Title = "Feedback Log",
+            Title = " Feedback Log ",
             X = 0,
             Y = Pos.AnchorEnd(6),
             Width = Dim.Fill(),
@@ -107,7 +107,7 @@ public class AITranscribeTui : Window
 
         var transcriptFrame = new FrameView()
         {
-            Title = "Transcript (editable, Ctrl+S to save)",
+            Title = "Transcript (editable, Ctrl+S to save) ",
             X = 0,
             Y = Pos.Bottom(statusFrame),
             Width = Dim.Fill(),
@@ -128,7 +128,7 @@ public class AITranscribeTui : Window
 
         var historyFrame = new FrameView()
         {
-            Title = "Transcriptions",
+            Title = " Transcriptions ",
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
@@ -147,7 +147,7 @@ public class AITranscribeTui : Window
 
         var configFrame = new FrameView()
         {
-            Title = "Recording Mode",
+            Title = " Recording Mode ",
             X = 0,
             Y = Pos.Bottom(historyFrame),
             Width = Dim.Fill(),
@@ -194,7 +194,7 @@ public class AITranscribeTui : Window
 
         var extraFrame = new FrameView()
         {
-            Title = "Configuration",
+            Title = " Configuration ",
             X = 0,
             Y = Pos.Bottom(configFrame),
             Width = Dim.Fill(),

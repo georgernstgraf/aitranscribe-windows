@@ -38,7 +38,7 @@ public class TuiWiringTests
 
         var mockStt = new Mock<ISttClient>();
         var mockLlm = new Mock<ILlmClient>();
-        var service = new TranscriptionService(mockStt.Object, mockLlm.Object, _promptManagerMock.Object);
+        var service = new TranscriptionService(mockStt.Object, mockLlm.Object, _promptManagerMock.Object, PromptsConfig.CreateDefault());
 
         _controller = new RecordingController(recorder, service);
     }
@@ -52,7 +52,7 @@ public class TuiWiringTests
         var mockStt = new Mock<ISttClient>();
         var mockLlm = new Mock<ILlmClient>();
         var mockPrompt = new Mock<IPromptManager>();
-        var service = new TranscriptionService(mockStt.Object, mockLlm.Object, mockPrompt.Object);
+        var service = new TranscriptionService(mockStt.Object, mockLlm.Object, mockPrompt.Object, PromptsConfig.CreateDefault());
 
         var services = new ServiceCollection();
         services.AddSingleton<TranscriptionService>(service);
