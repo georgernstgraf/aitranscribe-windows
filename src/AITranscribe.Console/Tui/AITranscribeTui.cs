@@ -3,6 +3,7 @@ using Terminal.Gui.Drawing;
 using Terminal.Gui.Input;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
+using Attr = Terminal.Gui.Drawing.Attribute;
 
 namespace AITranscribe.Console.Tui;
 
@@ -271,8 +272,17 @@ public class AITranscribeTui : Window
 
         _focusableViews = [TranscriptView, HistoryList, SourceRadioGroup, FilePathField, PreprocessRadioGroup, SttModelField, LlmModelField];
 
+        var scheme = new Scheme
+        {
+            Normal = new Attr(Color.White, Color.Black),
+            Focus = new Attr(Color.Black, Color.BrightCyan),
+            HotNormal = new Attr(Color.BrightGreen, Color.Black),
+            HotFocus = new Attr(Color.Black, Color.BrightGreen),
+        };
+
         foreach (var view in _focusableViews)
         {
+            view.SetScheme(scheme);
             view.HasFocusChanged += (_, _) => UpdateStatusDisplay();
         }
 
