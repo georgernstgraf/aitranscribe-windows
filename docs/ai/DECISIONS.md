@@ -110,3 +110,17 @@ New tests/AITranscribe.Integration.Tests project (xUnit, net8.0-windows) with Li
 
 ### D34: trump.mp3 as test fixture
 Existing trump.mp3 (86KB, ~3s) in repo root copied to Fixtures/ for STT integration tests. Groq accepts MP3 natively.
+
+## 2026-04-27: TUI Polish and Bug Fix Decisions
+
+### D35: FrameView titles use clean source strings + `SetFramedTitle()` helper
+Heading titles shall have no leading/trailing spaces in the source code. These spaces are applied during rendering via a private `SetFramedTitle(FrameView, string)` helper that wraps the title with `" {title} "`. This keeps source strings clean and trimmable while ensuring the border renderer produces `╭─ Title ─────╮`.
+
+### D36: Outer `Window` uses `LineStyle.Rounded`
+The root `AITranscribeTui : Window` sets `BorderStyle = LineStyle.Rounded` in its constructor for consistent rounded-corner borders on the application outer frame.
+
+### D37: Clock title accounts for border padding and trailing space
+`StartClock` computes available title width as `Screen.Width - 4` (2 columns left border + 2 columns right border around the text area), then reserves 1 additional column for a trailing space after the time. Uses `_app.Screen.Width` instead of `Frame.Width` for accurate terminal dimensions.
+
+### D38: Post-processed transcript must explicitly call `transcriptCallback`
+`TranscriptionService` invokes `transcriptCallback` with raw STT text but does not automatically re-invoke it after LLM cleanup/translation. The service explicitly calls `transcriptCallback?.Invoke(finalText)` after `PostProcessAsync` returns so the UI displays the cleaned result.

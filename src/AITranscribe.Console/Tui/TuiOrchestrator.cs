@@ -209,7 +209,7 @@ public static class TuiOrchestrator
         };
 
         tui.StartClock(app);
-        tui.TranscriptView.SetFocus();
+        tui.EnterCommandMode();
 
         _ = Task.Run(async () =>
         {

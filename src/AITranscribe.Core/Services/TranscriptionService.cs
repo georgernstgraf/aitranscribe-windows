@@ -48,6 +48,7 @@ public class TranscriptionService
             feedbackCallback?.Invoke("transcribe", "done");
 
             var finalText = await PostProcessAsync(rawText, settings, feedbackCallback, ct);
+            transcriptCallback?.Invoke(finalText);
 
             long? promptId = null;
             if (!settings.AppendMode)
@@ -95,6 +96,7 @@ public class TranscriptionService
         feedbackCallback?.Invoke("transcribe", "done");
 
         var finalText = await PostProcessAsync(rawText, settings, feedbackCallback, ct);
+        transcriptCallback?.Invoke(finalText);
 
         long? promptId = null;
         if (!settings.AppendMode)

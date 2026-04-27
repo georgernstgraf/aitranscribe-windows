@@ -59,9 +59,17 @@ public class AITranscribeTui : Window
 
     public bool IsPaneFocusMode => _focusableViews.Any(v => v.HasFocus);
 
+    public void EnterCommandMode() => _commandModeSink.SetFocus();
+
+    private static void SetFramedTitle(FrameView frame, string title)
+    {
+        frame.Title = $" {title} ";
+    }
+
     public AITranscribeTui() : base()
     {
         Title = "AITranscribe";
+        BorderStyle = LineStyle.Rounded;
         _feedbackState = FeedbackSteps.ToDictionary(s => s.Id, _ => "pending");
 
         var primaryColumn = new View()
@@ -86,12 +94,13 @@ public class AITranscribeTui : Window
 
         var statusFrame = new FrameView()
         {
-            Title = " Status ",
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
             Height = 4
         };
+        SetFramedTitle(statusFrame, "Status");
+        statusFrame.Padding.Thickness = new Thickness(1, 0, 1, 0);
 
         StatusLabel = new Label()
         {
@@ -115,12 +124,13 @@ public class AITranscribeTui : Window
 
         var feedbackFrame = new FrameView()
         {
-            Title = " Feedback Log ",
             X = 0,
             Y = Pos.AnchorEnd(6),
             Width = Dim.Fill(),
             Height = 6
         };
+        SetFramedTitle(feedbackFrame, "Feedback Log");
+        feedbackFrame.Padding.Thickness = new Thickness(1, 0, 1, 0);
 
         FeedbackStepLabels = new Label[FeedbackSteps.Length];
         for (int i = 0; i < FeedbackSteps.Length; i++)
@@ -138,12 +148,13 @@ public class AITranscribeTui : Window
 
         var transcriptFrame = new FrameView()
         {
-            Title = "Transcript (editable, Ctrl+S to save) ",
             X = 0,
             Y = Pos.Bottom(statusFrame),
             Width = Dim.Fill(),
             Height = Dim.Fill(6)
         };
+        SetFramedTitle(transcriptFrame, "Transcript (editable, Ctrl+S to save)");
+        transcriptFrame.Padding.Thickness = new Thickness(1, 0, 1, 0);
 
         TranscriptView = new TextView()
         {
@@ -162,12 +173,13 @@ public class AITranscribeTui : Window
 
         var historyFrame = new FrameView()
         {
-            Title = " Transcriptions ",
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
             Height = Dim.Percent(50)
         };
+        SetFramedTitle(historyFrame, "Transcriptions");
+        historyFrame.Padding.Thickness = new Thickness(1, 0, 1, 0);
 
         HistorySubtitleLabel = new Label()
         {
@@ -192,12 +204,13 @@ public class AITranscribeTui : Window
 
         var configFrame = new FrameView()
         {
-            Title = " Recording Mode ",
             X = 0,
             Y = Pos.Bottom(historyFrame),
             Width = Dim.Fill(),
             Height = 10
         };
+        SetFramedTitle(configFrame, "Recording Mode");
+        configFrame.Padding.Thickness = new Thickness(1, 0, 1, 0);
 
         SourceRadioGroup = new OptionSelector()
         {
@@ -245,12 +258,13 @@ public class AITranscribeTui : Window
 
         var extraFrame = new FrameView()
         {
-            Title = " Configuration ",
             X = 0,
             Y = Pos.Bottom(configFrame),
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
+        SetFramedTitle(extraFrame, "Configuration");
+        extraFrame.Padding.Thickness = new Thickness(1, 0, 1, 0);
 
         var sttLabel = new Label()
         {
@@ -337,6 +351,30 @@ public class AITranscribeTui : Window
             view.MouseHighlightStates = MouseState.In;
         }
 
+        HistoryList.MouseEvent += (_, e) =>
+        {
+            if (e.Flags == MouseFlags.LeftButtonClicked || e.Flags == MouseFlags.LeftButtonReleased)
+            {
+                EnterCommandMode();
+            }
+        };
+
+        SourceRadioGroup.MouseEvent += (_, e) =>
+        {
+            if (e.Flags == MouseFlags.LeftButtonClicked || e.Flags == MouseFlags.LeftButtonReleased)
+            {
+                EnterCommandMode();
+            }
+        };
+
+        PreprocessRadioGroup.MouseEvent += (_, e) =>
+        {
+            if (e.Flags == MouseFlags.LeftButtonClicked || e.Flags == MouseFlags.LeftButtonReleased)
+            {
+                EnterCommandMode();
+            }
+        };
+
         HelpBar.SetScheme(scheme);
         SetScheme(scheme);
 
@@ -392,15 +430,23 @@ public class AITranscribeTui : Window
         {
             var timeStr = DateTime.Now.ToString("HH:mm:ss");
             var titleStr = "AITranscribe";
-            var totalWidth = Frame.Width;
-            if (totalWidth > titleStr.Length + timeStr.Length)
+            var totalWidth = _app?.Screen.Width ?? Frame.Width;
+            var availableWidth = Math.Max(0, totalWidth - 4);
+
+            var textWidth = availableWidth - 1; // reserve 1 column for trailing space
+            if (textWidth >= titleStr.Length + 1 + timeStr.Length)
             {
-                var pad = (totalWidth - titleStr.Length - timeStr.Length) / 2;
-                Title = $"{new string(' ', pad)}{titleStr}{new string(' ', totalWidth - pad - titleStr.Length - timeStr.Length)}{timeStr}";
+                var pad = (textWidth - titleStr.Length - timeStr.Length) / 2;
+                var rightPad = textWidth - pad - titleStr.Length - timeStr.Length;
+                Title = $"{new string(' ', pad)}{titleStr}{new string(' ', rightPad)}{timeStr} ";
+            }
+            else if (availableWidth >= titleStr.Length)
+            {
+                Title = titleStr;
             }
             else
             {
-                Title = $"{titleStr} {timeStr}";
+                Title = titleStr[..Math.Max(0, availableWidth)];
             }
 
             if (Frame.Width != _lastResizeWidth || Frame.Height != _lastResizeHeight)

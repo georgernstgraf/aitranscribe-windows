@@ -25,6 +25,13 @@ Or use a fresh shell session.
 ### P03: dotnet new does not accept net8.0-windows
 `dotnet new` templates reject `-f net8.0-windows`. Create projects with `-f net8.0` then edit `.csproj` to change `<TargetFramework>` to `net8.0-windows`.
 
+### P10: Build file locking by running dotnet.exe / AITranscribe.exe
+The `dotnet` build process copies DLLs into the output directory. If the app (or a test runner) is currently running, the DLL files are locked and MSBuild fails with `MSB3027` / `MSB3021` after 10 retries. Always kill running processes before rebuilding:
+```powershell
+taskkill /F /IM dotnet.exe
+taskkill /F /IM AITranscribe.exe
+```
+
 ## NuGet / Dependencies
 
 ### P04: Float-latest NuGet packages resolve to ancient versions
@@ -43,3 +50,11 @@ Terminal.Gui v2 `SetHasFocusTrue` checks `superViewOrParent.CanFocus`. If any an
 
 ### P09: `CanFocus` auto-sets `TabStop = TabStop` if null
 When setting `CanFocus = true`, Terminal.Gui auto-sets `TabStop = TabBehavior.TabStop` if it was previously `null`. For container views that should not be Tab stops but must allow descendant focus, **set `TabStop = TabBehavior.NoStop` BEFORE `CanFocus = true`**.
+
+### P11: Title bar vertical lines are hardcoded to `LineStyle.Single`
+In `BorderView.DrawLegacyBorder`, the vertical lines drawn on the left and right sides of the title (the `├`/`┤` tee characters where the title meets the border) are **hardcoded** to `LineStyle.Single`. Even when the border is `LineStyle.Rounded`, these vertical segments remain single-line. There is no public API, theme property, or configuration to change this behavior in Terminal.Gui v2 RC4.
+
+## Application Logic
+
+### P12: Post-processed transcript text must be sent to callback explicitly
+`TranscriptionService.ProcessMicAudioAsync` and `ProcessFileAsync` invoke `transcriptCallback` with the **raw** STT result, but they do NOT automatically invoke it again after `PostProcessAsync` returns the cleaned/English text. The caller must explicitly call `transcriptCallback?.Invoke(finalText)` after post-processing if the UI should display the final result.
