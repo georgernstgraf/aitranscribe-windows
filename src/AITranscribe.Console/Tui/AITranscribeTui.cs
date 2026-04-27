@@ -49,8 +49,6 @@ public class AITranscribeTui : Window
         Title = "AITranscribe";
         _feedbackState = FeedbackSteps.ToDictionary(s => s.Id, _ => "pending");
 
-        CanFocus = true;
-
         var primaryColumn = new View()
         {
             X = 0,
@@ -286,7 +284,7 @@ public class AITranscribeTui : Window
             view.HasFocusChanged += (_, _) => UpdateStatusDisplay();
         }
 
-        SetupKeyBindings();
+        RegisterCommands();
     }
 
     public void StartClock(IApplication? app)
@@ -315,62 +313,25 @@ public class AITranscribeTui : Window
         }
     }
 
-    private void SetupKeyBindings()
+    private void RegisterCommands()
     {
-        KeyDown += OnKeyDown;
-    }
-
-    private void OnKeyDown(object? sender, Key e)
-    {
-        if (e == Key.Tab)
-        {
-            FocusNext();
-            e.Handled = true;
-        }
-        else if (e == Key.Esc)
-        {
-            foreach (var v in _focusableViews)
-                v.HasFocus = false;
-            UpdateStatusDisplay();
-            e.Handled = true;
-        }
-        else if (IsPaneFocusMode)
-        {
-        }
-        else if (e == Key.Space)
+        AddCommand(Command.Accept, () =>
         {
             ToggleRecording();
-            e.Handled = true;
-        }
-        else if (e == (Key.A))
-        {
-            AppendRecording();
-            e.Handled = true;
-        }
-        else if (e == Key.S)
+            return true;
+        });
+
+        AddCommand(Command.Save, () =>
         {
             SaveTranscript();
-            e.Handled = true;
-        }
-        else if (e == Key.C)
-        {
-            CopyTranscript();
-            e.Handled = true;
-        }
-        else if (e == Key.Q)
+            return true;
+        });
+
+        AddCommand(Command.Quit, () =>
         {
             _app?.RequestStop();
-            e.Handled = true;
-        }
-    }
-
-    private void FocusNext()
-    {
-        if (_focusableViews.Length == 0) return;
-        var current = _focusableViews.FirstOrDefault(v => v.HasFocus);
-        var idx = current is null ? -1 : Array.IndexOf(_focusableViews, current);
-        idx = (idx + 1) % _focusableViews.Length;
-        _focusableViews[idx].SetFocus();
+            return true;
+        });
     }
 
     public void ToggleRecording()
