@@ -1,41 +1,44 @@
 # Project State
 
-Current status as of 2026-04-24.
+Current status as of 2026-04-27.
 
 ## Current Focus
 
-Integration tests (#22) fully implemented. All 6 sub-issues committed. Ready to close on GitHub.
+Issue #36 — TUI Layout Based on Reference Design — fully implemented and tested.
 
 ## Completed
 
 - [x] S1-S15: All TDD sub-issues completed (160 unit tests)
-- [x] I1 (#28): Integration Test Infrastructure — new project, LiveTestConfig, CompositionRootTestHelper, trump.mp3 fixture, .sln
-- [x] I2 (#23): STT Integration — Groq Whisper live tests (2 tests)
-- [x] I3 (#24): LLM Integration — All Providers live tests (4 tests: OpenRouter, Cohere, z.ai, translation)
-- [x] I4 (#25): Full Pipeline — File Mode live tests (4 tests: Raw, Cleanup, English, Raw vs Cleanup)
-- [x] I5 (#26): CLI Integration — TranscribeCommand with real DI (4 tests: --file, --list, --query, --remove)
-- [x] I6 (#27): TUI Smoke — Launch & State Wiring (8 tests: construct, callbacks, state transitions, feedback, history CRUD, clipboard)
+- [x] I1 (#28): Integration Test Infrastructure
+- [x] I2 (#23): STT Integration
+- [x] I3 (#24): LLM Integration
+- [x] I4 (#25): Full Pipeline
+- [x] I5 (#26): CLI Integration
+- [x] I6 (#27): TUI Smoke
+- [x] #30, #31: Terminal.Gui v2 RC4 migration + .NET 10 upgrade
+- [x] #35: Scheme colors + focus system cleanup
+- [x] #36: TUI Layout Polish — feedback format `[ ]/[x]/[>]/[!]`, history subtitle, help bar, centered title, navy color scheme, new hotkeys (D/E/W/Del/A/C), label updates
 
 ## Test Summary
 
-- **164 unit tests**: Core.Tests (66) + Console.Tests (98)
+- **173 unit tests**: Core.Tests (66) + Console.Tests (107)
 - **22 integration tests** (all skip without LIVE_TEST=1): Integration.Tests
 - 1 pre-existing flaky test in Console.Tests (NAudio file lock)
 
 ## Architecture (updated)
 
-- AITransscribe.Integration.Tests project added to solution
-- InternalsVisibleTo updated to include AITransscribe.Integration.Tests
-- LiveTestConfig gates all integration tests with LIVE_TEST=1
-- CompositionRootTestHelper creates real DI container with temp SQLite
-- Decision override: D31/D32 → integration tests in separate project with real API calls
+- .NET 10 SDK installed in local env (`%LOCALAPPDATA%\Microsoft\dotnet`)
+- AITranscribeTui: `OnKeyDownNotHandled` override for custom keys (Terminal.Gui v2 RC4)
+- New TUI callbacks: `OnTranslateRequested`, `OnWriteIssueRequested`, `OnDeleteRequested`
+- HelpBar + HistorySubtitleLabel added to layout
+- `Dim.Fill(1)` + `Pos.AnchorEnd(1)` reserved for bottom help bar
 
 ## Pending
 
-- Close GitHub issues #22, #23-#28
-- Push local commits to origin (6 new commits ahead)
+- Close GitHub issue #36
+- Push local commits to origin
 - README.md
-- Polish and UX refinement
+- Further UX refinement
 
 ## Blockers
 

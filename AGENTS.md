@@ -1,11 +1,11 @@
 # aitranscribe-windows
 
-Native .NET 8 Windows port of [AI-Transcribe](https://github.com/georgernstgraf/aitranscribe)
-(Python → C# 12 / Spectre.Console / NAudio / OpenAI .NET SDK).
+Native .NET 10 Windows port of [AI-Transcribe](https://github.com/georgernstgraf/aitranscribe)
+(Python → C# 13 / Spectre.Console / NAudio / OpenAI .NET SDK).
 
 ## Tech Stack
 
-- C# 12, .NET 8, Windows
+- C# 13, .NET 10, Windows
 - Spectre.Console + Spectre.Console.Cli
 - NAudio (WasapiCapture)
 - OpenAI .NET SDK (Groq STT, OpenRouter, Cohere, z.ai)

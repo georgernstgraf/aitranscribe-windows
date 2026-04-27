@@ -115,10 +115,13 @@ public class AITranscribeTuiTests
     public void AITranscribeTui_SetFeedbackStep_UpdatesLabel()
     {
         _tui.SetFeedbackStep("compress", "done");
-        _tui.FeedbackStepLabels[0].Text.Should().Contain("done");
+        _tui.FeedbackStepLabels[0].Text.Should().Contain("[x]");
 
         _tui.SetFeedbackStep("transcribe", "active");
-        _tui.FeedbackStepLabels[1].Text.Should().Contain("active");
+        _tui.FeedbackStepLabels[1].Text.Should().Contain("[>]");
+
+        _tui.SetFeedbackStep("post_process", "failed");
+        _tui.FeedbackStepLabels[2].Text.Should().Contain("[!]");
     }
 
     [Fact]
@@ -131,7 +134,7 @@ public class AITranscribeTuiTests
 
         foreach (var label in _tui.FeedbackStepLabels)
         {
-            label.Text.Should().Contain("pending");
+            label.Text.Should().Contain("[ ]");
         }
     }
 
@@ -142,5 +145,62 @@ public class AITranscribeTuiTests
 
         _tui.SetState(TuiState.Recording);
         _tui.StatusLabel.Text.ToString().Should().Contain("Recording");
+    }
+
+    [Fact]
+    public void AITranscribeTui_HasHelpBar()
+    {
+        _tui.HelpBar.Should().NotBeNull();
+        _tui.HelpBar.Should().BeOfType<Label>();
+    }
+
+    [Fact]
+    public void AITranscribeTui_HasHistorySubtitleLabel()
+    {
+        _tui.HistorySubtitleLabel.Should().NotBeNull();
+        _tui.HistorySubtitleLabel.Should().BeOfType<Label>();
+    }
+
+    [Fact]
+    public void AITranscribeTui_UpdateHistorySubtitle_SetsText()
+    {
+        _tui.UpdateHistorySubtitle(42);
+        _tui.HistorySubtitleLabel.Text.Should().Contain("Stored: 42");
+        _tui.HistorySubtitleLabel.Text.Should().Contain("Arrows to preview");
+    }
+
+    [Fact]
+    public void AITranscribeTui_Translate_InvokesCallback()
+    {
+        var called = false;
+        var language = "";
+        _tui.OnTranslateRequested = lang => { called = true; language = lang; };
+
+        _tui.Translate("german");
+
+        called.Should().BeTrue();
+        language.Should().Be("german");
+    }
+
+    [Fact]
+    public void AITranscribeTui_WriteIssueFile_InvokesCallback()
+    {
+        var called = false;
+        _tui.OnWriteIssueRequested = () => called = true;
+
+        _tui.WriteIssueFile();
+
+        called.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AITranscribeTui_DeleteSelected_InvokesCallback()
+    {
+        var called = false;
+        _tui.OnDeleteRequested = () => called = true;
+
+        _tui.DeleteSelected();
+
+        called.Should().BeTrue();
     }
 }

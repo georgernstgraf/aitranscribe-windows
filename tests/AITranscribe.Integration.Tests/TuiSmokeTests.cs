@@ -85,19 +85,19 @@ public class TuiSmokeTests : IDisposable
 
         tui.SetFeedbackStep("compress", "done");
         tui.FeedbackStepLabels[0].Text.Should().Contain("Compressing Message");
-        tui.FeedbackStepLabels[0].Text.Should().Contain("done");
+        tui.FeedbackStepLabels[0].Text.Should().Contain("[x]");
 
         tui.SetFeedbackStep("transcribe", "active");
         tui.FeedbackStepLabels[1].Text.Should().Contain("Transcribing Raw Message");
-        tui.FeedbackStepLabels[1].Text.Should().Contain("active");
+        tui.FeedbackStepLabels[1].Text.Should().Contain("[>]");
 
         tui.SetFeedbackStep("post_process", "failed");
         tui.FeedbackStepLabels[2].Text.Should().Contain("Post-Processing Message");
-        tui.FeedbackStepLabels[2].Text.Should().Contain("failed");
+        tui.FeedbackStepLabels[2].Text.Should().Contain("[!]");
 
         tui.SetFeedbackStep("summary", "active");
         tui.FeedbackStepLabels[3].Text.Should().Contain("Creating Summary");
-        tui.FeedbackStepLabels[3].Text.Should().Contain("active");
+        tui.FeedbackStepLabels[3].Text.Should().Contain("[>]");
     }
 
     [Fact]
@@ -114,14 +114,14 @@ public class TuiSmokeTests : IDisposable
 
         foreach (var label in tui.FeedbackStepLabels)
         {
-            label.Text.Should().NotContain("pending");
+            label.Text.Should().NotContain("[ ]");
         }
 
         tui.ResetFeedbackSteps();
 
         foreach (var label in tui.FeedbackStepLabels)
         {
-            label.Text.Should().Contain("pending");
+            label.Text.Should().Contain("[ ]");
         }
     }
 

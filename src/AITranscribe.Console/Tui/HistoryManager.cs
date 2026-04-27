@@ -43,6 +43,7 @@ public class HistoryManager
         }
 
         _tui.HistoryList.SetSource(items);
+        _tui.UpdateHistorySubtitle(_prompts.Count);
 
         if (_prompts.Count > 0 && SelectedHistoryId.HasValue)
         {

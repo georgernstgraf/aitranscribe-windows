@@ -101,7 +101,7 @@ public class TuiWiringTests
 
         _controller.OnFeedback?.Invoke("compress", "active");
 
-        _tui.FeedbackStepLabels[0].Text.Should().Contain("active");
+        _tui.FeedbackStepLabels[0].Text.Should().Contain("[>]");
     }
 
     [Fact]
@@ -263,5 +263,32 @@ public class TuiWiringTests
         var result = await _tui.OnSaveTranscriptRequested!("some transcript", "");
 
         result.Should().Be(1);
+    }
+
+    [Fact]
+    public void WireTui_OnTranslateRequested_IsWired()
+    {
+        var provider = BuildMockProvider();
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+
+        _tui.OnTranslateRequested.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void WireTui_OnWriteIssueRequested_IsWired()
+    {
+        var provider = BuildMockProvider();
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+
+        _tui.OnWriteIssueRequested.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void WireTui_OnDeleteRequested_IsWired()
+    {
+        var provider = BuildMockProvider();
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+
+        _tui.OnDeleteRequested.Should().NotBeNull();
     }
 }

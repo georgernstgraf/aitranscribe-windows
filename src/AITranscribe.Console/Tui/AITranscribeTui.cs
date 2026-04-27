@@ -17,12 +17,22 @@ public class AITranscribeTui : Window
         ("summary", "Creating Summary"),
     ];
 
+    private const Command CmdTranslateGerman = (Command)100;
+    private const Command CmdTranslateEnglish = (Command)101;
+    private const Command CmdWriteIssue = (Command)102;
+    private const Command CmdDelete = (Command)103;
+    private const Command CmdAppend = (Command)104;
+    private const Command CmdCopy = (Command)105;
+
     public TuiState CurrentState { get; private set; } = TuiState.Idle;
 
     public Action? OnToggleRecordingRequested { get; set; }
     public Action? OnAppendRecordingRequested { get; set; }
     public Action? OnResized { get; set; }
     public Func<string, string, System.Threading.Tasks.Task<long?>>? OnSaveTranscriptRequested { get; set; }
+    public Action<string>? OnTranslateRequested { get; set; }
+    public Action? OnWriteIssueRequested { get; set; }
+    public Action? OnDeleteRequested { get; set; }
 
     public TextView TranscriptView { get; }
     public ListView HistoryList { get; }
@@ -34,6 +44,8 @@ public class AITranscribeTui : Window
     public TextField FilePathField { get; }
     public TextField SttModelField { get; }
     public TextField LlmModelField { get; }
+    public Label HelpBar { get; }
+    public Label HistorySubtitleLabel { get; }
 
     private readonly Dictionary<string, string> _feedbackState;
     private object? _clockTimeout;
@@ -54,7 +66,7 @@ public class AITranscribeTui : Window
             X = 0,
             Y = 0,
             Width = Dim.Percent(57),
-            Height = Dim.Fill()
+            Height = Dim.Fill(1)
         };
 
         var sidebarColumn = new View()
@@ -62,7 +74,7 @@ public class AITranscribeTui : Window
             X = Pos.Right(primaryColumn),
             Y = 0,
             Width = Dim.Fill(),
-            Height = Dim.Fill()
+            Height = Dim.Fill(1)
         };
 
         var statusFrame = new FrameView()
@@ -108,7 +120,7 @@ public class AITranscribeTui : Window
         {
             FeedbackStepLabels[i] = new Label()
             {
-                Text = $"  {FeedbackSteps[i].Label}: pending",
+                Text = $"[ ] {FeedbackSteps[i].Label}",
                 X = 0,
                 Y = i,
                 Width = Dim.Fill(),
@@ -150,17 +162,26 @@ public class AITranscribeTui : Window
             Height = Dim.Percent(50)
         };
 
+        HistorySubtitleLabel = new Label()
+        {
+            Text = "Stored: 0 | Arrows to preview",
+            X = 0,
+            Y = 0,
+            Width = Dim.Fill(),
+            Height = 1
+        };
+
         HistoryList = new ListView()
         {
             X = 0,
-            Y = 0,
+            Y = Pos.Bottom(HistorySubtitleLabel),
             Width = Dim.Fill(),
             Height = Dim.Fill(),
             CanFocus = true,
             TabStop = TabBehavior.TabStop
         };
 
-        historyFrame.Add(HistoryList);
+        historyFrame.Add(HistorySubtitleLabel, HistoryList);
 
         var configFrame = new FrameView()
         {
@@ -204,7 +225,7 @@ public class AITranscribeTui : Window
 
         PreprocessRadioGroup = new OptionSelector()
         {
-            Labels = ["Raw transcription", "Cleanup / Preserve", "Cleanup + English"],
+            Labels = ["Raw transcription", "Cleanup Text / Preserve Language", "Cleanup + Translate to English"],
             X = 0,
             Y = 4,
             Width = Dim.Fill(),
@@ -226,10 +247,10 @@ public class AITranscribeTui : Window
 
         var sttLabel = new Label()
         {
-            Text = "STT:",
+            Text = "STT-Model",
             X = 0,
             Y = 0,
-            Width = 5,
+            Width = 10,
             Height = 1
         };
 
@@ -246,10 +267,10 @@ public class AITranscribeTui : Window
 
         var llmLabel = new Label()
         {
-            Text = "LLM:",
+            Text = "LLM-Model",
             X = 0,
             Y = 1,
-            Width = 5,
+            Width = 10,
             Height = 1
         };
 
@@ -266,16 +287,30 @@ public class AITranscribeTui : Window
 
         extraFrame.Add(sttLabel, SttModelField, llmLabel, LlmModelField);
         sidebarColumn.Add(historyFrame, configFrame, extraFrame);
-        Add(primaryColumn, sidebarColumn);
+
+        HelpBar = new Label()
+        {
+            Text = "space Record/Stop  a Append  ^s Save  c Copy  d German  e English  w Issue  del Delete  esc Command  q Quit",
+            X = 0,
+            Y = Pos.AnchorEnd(1),
+            Width = Dim.Fill(),
+            Height = 1
+        };
+
+        Add(primaryColumn, sidebarColumn, HelpBar);
 
         _focusableViews = [TranscriptView, HistoryList, SourceRadioGroup, FilePathField, PreprocessRadioGroup, SttModelField, LlmModelField];
 
+        var navy = new Color(15, 23, 42);
+        var cyan = Color.Cyan;
+        var brightBlue = Color.BrightBlue;
+
         var scheme = new Scheme
         {
-            Normal = new Attr(Color.White, Color.Black),
-            Focus = new Attr(Color.Black, Color.BrightCyan),
-            HotNormal = new Attr(Color.BrightGreen, Color.Black),
-            HotFocus = new Attr(Color.Black, Color.BrightGreen),
+            Normal = new Attr(cyan, navy),
+            Focus = new Attr(navy, brightBlue),
+            HotNormal = new Attr(Color.BrightGreen, navy),
+            HotFocus = new Attr(navy, Color.BrightGreen),
         };
 
         foreach (var view in _focusableViews)
@@ -283,6 +318,9 @@ public class AITranscribeTui : Window
             view.SetScheme(scheme);
             view.HasFocusChanged += (_, _) => UpdateStatusDisplay();
         }
+
+        HelpBar.SetScheme(scheme);
+        SetScheme(scheme);
 
         RegisterCommands();
     }
@@ -293,7 +331,19 @@ public class AITranscribeTui : Window
         if (app is null) return;
         _clockTimeout = app.AddTimeout(TimeSpan.FromSeconds(1), () =>
         {
-            Title = $"AITranscribe  {DateTime.Now:HH:mm:ss}";
+            var timeStr = DateTime.Now.ToString("HH:mm:ss");
+            var titleStr = "AITranscribe";
+            var totalWidth = Frame.Width;
+            if (totalWidth > titleStr.Length + timeStr.Length)
+            {
+                var pad = (totalWidth - titleStr.Length - timeStr.Length) / 2;
+                Title = $"{new string(' ', pad)}{titleStr}{new string(' ', totalWidth - pad - titleStr.Length - timeStr.Length)}{timeStr}";
+            }
+            else
+            {
+                Title = $"{titleStr} {timeStr}";
+            }
+
             if (Frame.Width != _lastResizeWidth || Frame.Height != _lastResizeHeight)
             {
                 _lastResizeWidth = Frame.Width;
@@ -332,6 +382,57 @@ public class AITranscribeTui : Window
             _app?.RequestStop();
             return true;
         });
+
+        AddCommand(CmdAppend, () =>
+        {
+            AppendRecording();
+            return true;
+        });
+
+        AddCommand(CmdCopy, () =>
+        {
+            CopyTranscript();
+            return true;
+        });
+
+        AddCommand(CmdTranslateGerman, () =>
+        {
+            Translate("german");
+            return true;
+        });
+
+        AddCommand(CmdTranslateEnglish, () =>
+        {
+            Translate("english");
+            return true;
+        });
+
+        AddCommand(CmdWriteIssue, () =>
+        {
+            WriteIssueFile();
+            return true;
+        });
+
+        AddCommand(CmdDelete, () =>
+        {
+            DeleteSelected();
+            return true;
+        });
+    }
+
+    protected override bool OnKeyDownNotHandled(Key key)
+    {
+        if (!IsPaneFocusMode)
+        {
+            if (key == Key.A) { AppendRecording(); return true; }
+            if (key == Key.C) { CopyTranscript(); return true; }
+            if (key == Key.D) { Translate("german"); return true; }
+            if (key == Key.E) { Translate("english"); return true; }
+            if (key == Key.W) { WriteIssueFile(); return true; }
+            if (key == Key.Delete) { DeleteSelected(); return true; }
+            if (key == Key.Q) { _app?.RequestStop(); return true; }
+        }
+        return base.OnKeyDownNotHandled(key);
     }
 
     public void ToggleRecording()
@@ -379,6 +480,21 @@ public class AITranscribeTui : Window
         }
     }
 
+    public void Translate(string language)
+    {
+        OnTranslateRequested?.Invoke(language);
+    }
+
+    public void WriteIssueFile()
+    {
+        OnWriteIssueRequested?.Invoke();
+    }
+
+    public void DeleteSelected()
+    {
+        OnDeleteRequested?.Invoke();
+    }
+
     public void SetState(TuiState state)
     {
         CurrentState = state;
@@ -414,7 +530,14 @@ public class AITranscribeTui : Window
         var index = Array.FindIndex(FeedbackSteps, s => s.Id == stepId);
         if (index >= 0 && index < FeedbackStepLabels.Length)
         {
-            FeedbackStepLabels[index].Text = $"  {FeedbackSteps[index].Label}: {status}";
+            var prefix = status switch
+            {
+                "done" => "[x]",
+                "active" => "[>]",
+                "failed" => "[!]",
+                _ => "[ ]"
+            };
+            FeedbackStepLabels[index].Text = $"  {prefix} {FeedbackSteps[index].Label}";
         }
     }
 
@@ -427,7 +550,12 @@ public class AITranscribeTui : Window
 
         for (int i = 0; i < FeedbackStepLabels.Length; i++)
         {
-            FeedbackStepLabels[i].Text = $"  {FeedbackSteps[i].Label}: pending";
+            FeedbackStepLabels[i].Text = $"[ ] {FeedbackSteps[i].Label}";
         }
+    }
+
+    public void UpdateHistorySubtitle(int count)
+    {
+        HistorySubtitleLabel.Text = $"Stored: {count} | Arrows to preview";
     }
 }
