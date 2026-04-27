@@ -66,7 +66,7 @@ public class TuiWiringTests
     {
         var provider = BuildMockProvider();
 
-        var act = () => TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        var act = () => TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         act.Should().NotThrow();
     }
@@ -75,7 +75,7 @@ public class TuiWiringTests
     public void WireTui_TuiToggleRecording_ForwardsToController()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _tui.ToggleRecording();
 
@@ -86,7 +86,7 @@ public class TuiWiringTests
     public void WireTui_ControllerStateChanged_UpdatesTuiState()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _controller.OnStateChanged?.Invoke(TuiState.Recording);
 
@@ -97,7 +97,7 @@ public class TuiWiringTests
     public void WireTui_ControllerFeedback_UpdatesTuiFeedback()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _controller.OnFeedback?.Invoke("compress", "active");
 
@@ -108,7 +108,7 @@ public class TuiWiringTests
     public void WireTui_ControllerTranscriptUpdate_UpdatesTuiTranscript()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _controller.OnTranscriptUpdate?.Invoke("Hello world");
 
@@ -119,7 +119,7 @@ public class TuiWiringTests
     public void WireTui_ControllerProcessingFailed_UpdatesFlashLabel()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _controller.OnProcessingFailed?.Invoke("Something went wrong");
 
@@ -130,7 +130,7 @@ public class TuiWiringTests
     public void WireTui_SettingsProvider_ReadsFromTuiFields()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         var settings = _controller.SettingsProvider!();
 
@@ -142,7 +142,7 @@ public class TuiWiringTests
     public void WireTui_SettingsProvider_ReflectsPreprocessRadioChange()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _tui.PreprocessRadioGroup.Value = 0;
         var settings = _controller.SettingsProvider!();
@@ -161,7 +161,7 @@ public class TuiWiringTests
     public void WireTui_PopulatesConfigFields()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _tui.SttModelField.Text.ToString().Should().Be("whisper-large-v3-turbo");
         _tui.LlmModelField.Text.ToString().Should().Be("anthropic/claude-3-haiku");
@@ -240,7 +240,7 @@ public class TuiWiringTests
     public void WireTui_AppendRecording_SetsAppendModeAndStarts()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _tui.AppendRecording();
 
@@ -252,7 +252,7 @@ public class TuiWiringTests
     public async Task WireTui_OnSaveTranscriptRequested_CallsHistoryManager()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
         _tui.TranscriptView.Text = "some transcript";
 
         _promptManagerMock.Setup(pm => pm.AddAsync("some transcript", "", null, default))
@@ -269,7 +269,7 @@ public class TuiWiringTests
     public void WireTui_OnTranslateRequested_IsWired()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _tui.OnTranslateRequested.Should().NotBeNull();
     }
@@ -278,7 +278,7 @@ public class TuiWiringTests
     public void WireTui_OnWriteIssueRequested_IsWired()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _tui.OnWriteIssueRequested.Should().NotBeNull();
     }
@@ -287,7 +287,7 @@ public class TuiWiringTests
     public void WireTui_OnDeleteRequested_IsWired()
     {
         var provider = BuildMockProvider();
-        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, provider, null!);
+        TuiOrchestrator.WireTui(_tui, _controller, _historyManager, _config, null, provider, null!);
 
         _tui.OnDeleteRequested.Should().NotBeNull();
     }

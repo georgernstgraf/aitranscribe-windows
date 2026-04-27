@@ -27,10 +27,7 @@ Or use a fresh shell session.
 
 ## NuGet / Dependencies
 
-### P04: System.Text.Json version conflict (Terminal.Gui vs OpenAI SDK)
-Terminal.Gui 2.0.0 constrains `System.Text.Json` to `>= 8.0.5 && < 9.0.0`. OpenAI SDK 2.10.0 requires `>= 10.0.3`. Resolution: explicitly reference `System.Text.Json 10.0.3` in both Core and Console projects. This produces NU1608 warnings but works at runtime. Terminal.Gui's constraint is overly strict.
-
-### P05: Float-latest NuGet packages resolve to ancient versions
+### P04: Float-latest NuGet packages resolve to ancient versions
 Omitting version bounds on `PackageReference` entries causes NuGet to resolve the lowest-ever published version (e.g. OpenAI 1.0.0, NAudio 1.5.0). Always specify explicit versions in `.csproj` files.
 
 ## Terminal.Gui v2 RC4 Focus System

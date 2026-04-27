@@ -41,9 +41,10 @@ internal static class Program
         var controller = services.GetRequiredService<RecordingController>();
         var historyManager = services.GetRequiredService<HistoryManager>();
         var config = services.GetRequiredService<AppConfig>();
+        var configManager = services.GetRequiredService<ConfigManager>();
 
         IApplication app = Application.Create().Init();
-        TuiOrchestrator.WireTui(tui, controller, historyManager, config, services, app);
+        TuiOrchestrator.WireTui(tui, controller, historyManager, config, configManager, services, app);
         app.Run(tui);
         tui.Dispose();
         app.Dispose();

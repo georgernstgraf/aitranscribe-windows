@@ -10,9 +10,15 @@ namespace AITranscribe.Console.Tui;
 
 public static class TuiOrchestrator
 {
-    public static void WireTui(AITranscribeTui tui, RecordingController controller, HistoryManager historyManager, AppConfig config, IServiceProvider services, IApplication app)
+    public static void WireTui(AITranscribeTui tui, RecordingController controller, HistoryManager historyManager, AppConfig config, ConfigManager? configManager, IServiceProvider services, IApplication app)
     {
         PopulateConfigFields(tui, config);
+
+        if (configManager is not null)
+        {
+            tui.OnConfigChanged = newConfig => configManager.Save(newConfig);
+            tui.WireConfigPersistence(config);
+        }
 
         controller.InvokeOnMainThread = action => app.Invoke(action);
 

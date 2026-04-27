@@ -1,3 +1,4 @@
+using AITranscribe.Core.Configuration;
 using Terminal.Gui.App;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.Input;
@@ -33,6 +34,7 @@ public class AITranscribeTui : Window
     public Action<string>? OnTranslateRequested { get; set; }
     public Action? OnWriteIssueRequested { get; set; }
     public Action? OnDeleteRequested { get; set; }
+    public Action<AppConfig>? OnConfigChanged { get; set; }
 
     public TextView TranscriptView { get; }
     public ListView HistoryList { get; }
@@ -341,6 +343,47 @@ public class AITranscribeTui : Window
         RegisterCommands();
     }
 
+    public void WireConfigPersistence(AppConfig initialConfig)
+    {
+        SttModelField.ValueChanged += (_, _) => SaveConfig(initialConfig);
+        LlmModelField.ValueChanged += (_, _) => SaveConfig(initialConfig);
+        FilePathField.ValueChanged += (_, _) => SaveConfig(initialConfig);
+        SourceRadioGroup.ValueChanged += (_, _) => SaveConfig(initialConfig);
+        PreprocessRadioGroup.ValueChanged += (_, _) => SaveConfig(initialConfig);
+    }
+
+    private void SaveConfig(AppConfig baseConfig)
+    {
+        if (OnConfigChanged is null)
+            return;
+
+        var sttModel = SttModelField.Text.ToString() ?? baseConfig.Groq.SttModel;
+        var llmModelOverride = LlmModelField.Text.ToString() ?? "";
+        var filePath = FilePathField.Text.ToString() ?? "";
+        var inputSource = (SourceRadioGroup.Value ?? 0) == 0 ? "microphone" : "file";
+        var preProcessMode = (PreprocessRadioGroup.Value ?? 2) switch
+        {
+            0 => Core.Models.PreProcessMode.Raw,
+            1 => Core.Models.PreProcessMode.Cleanup,
+            _ => Core.Models.PreProcessMode.English,
+        };
+
+        var llmModel = string.IsNullOrWhiteSpace(llmModelOverride)
+            ? baseConfig.Llm.Model
+            : llmModelOverride;
+
+        var newConfig = baseConfig with
+        {
+            Groq = baseConfig.Groq with { SttModel = sttModel },
+            Llm = baseConfig.Llm with { Model = llmModel },
+            InputSource = inputSource,
+            PreProcessMode = preProcessMode,
+            LastFilePath = filePath,
+        };
+
+        OnConfigChanged(newConfig);
+    }
+
     public void StartClock(IApplication? app)
     {
         _app = app;
@@ -474,10 +517,15 @@ public class AITranscribeTui : Window
             return true;
         }
 
+        if (key == Key.S.WithCtrl)
+        {
+            _ = SaveTranscriptAsync();
+            return true;
+        }
+
         if (!IsPaneFocusMode)
         {
             if (key == Key.Space) { ToggleRecording(); return true; }
-            if (key == Key.S.WithCtrl) { SaveTranscript(); return true; }
             if (key == Key.A) { AppendRecording(); return true; }
             if (key == Key.C) { CopyTranscript(); return true; }
             if (key == Key.D) { Translate("german"); return true; }
@@ -499,21 +547,42 @@ public class AITranscribeTui : Window
         OnAppendRecordingRequested?.Invoke();
     }
 
-    public void SaveTranscript()
+    private void SaveTranscript()
+    {
+        _ = SaveTranscriptAsync();
+    }
+
+    public async System.Threading.Tasks.Task SaveTranscriptAsync()
     {
         var text = TranscriptView.Text.ToString() ?? "";
+        if (string.IsNullOrWhiteSpace(text) || text == "No transcript yet.")
+        {
+            FlashLabel.Text = "Nothing to save.";
+            return;
+        }
+
         if (OnSaveTranscriptRequested != null)
         {
-            var task = OnSaveTranscriptRequested(text, "");
-            System.Threading.Tasks.Task.Run(async () =>
+            try
             {
-                try { await task; } catch { }
-            });
-            FlashLabel.Text = "Transcript saved.";
+                var result = await OnSaveTranscriptRequested(text, "");
+                if (result.HasValue)
+                {
+                    FlashLabel.Text = $"Transcript saved (ID: {result.Value}).";
+                }
+                else
+                {
+                    FlashLabel.Text = "Save failed.";
+                }
+            }
+            catch (Exception ex)
+            {
+                FlashLabel.Text = $"Save failed: {ex.Message}";
+            }
         }
         else
         {
-            FlashLabel.Text = "Transcript saved.";
+            FlashLabel.Text = "Save not configured.";
         }
     }
 
