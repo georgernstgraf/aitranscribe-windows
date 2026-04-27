@@ -47,4 +47,9 @@ Issue #36 — TUI Layout Based on Reference Design — **complete**.
 
 ## Next Session
 
-Close GitHub issue #36, push commits, create README.md.
+- Create README.md
+- Further UX refinement
+
+## Working Agreements (updated)
+
+- **Issue closure requires LIVE_TEST=1**: All GitHub issues must pass integration tests (`LIVE_TEST=1`) before closing. See `docs/ai/CONVENTIONS.md`.

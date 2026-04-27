@@ -43,3 +43,10 @@ Follow these without question. Do not deviate unless explicitly told.
 ## Source Reference
 
 - Terminal.Gui v2 RC4 source cloned locally at `%TEMP%\terminal.gui` for quick grepping and reading. Use this instead of webfetch when investigating internal behavior.
+
+## Issue Closure Policy
+
+- **Do NOT close a GitHub issue unless `LIVE_TEST=1` tests have been executed and passed.**
+- Before closing any issue, run: `$env:LIVE_TEST = "1"; .\test.cmd`
+- If integration tests fail, fix the issue and re-run before closing.
+- This ensures all integration tests (including API-dependent ones) are verified before marking work complete.

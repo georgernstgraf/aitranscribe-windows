@@ -13,4 +13,8 @@ Technical details:
 - `Key.Tab.WithShift` used for Shift+Tab detection in Terminal.Gui v2 RC4.
 - `AdvanceFocus` exists on `View` but manual cycling gives explicit control over Tab order.
 
+## Working Agreements
+
+- **Issue closure requires LIVE_TEST=1**: Before closing any GitHub issue, execute `$env:LIVE_TEST = "1"; .\test.cmd` and ensure all integration tests pass. Do not close issues with failing or unverified integration tests.
+
 Last updated: 2026-04-27.

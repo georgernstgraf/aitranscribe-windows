@@ -51,7 +51,7 @@ public class TuiSmokeTests : IDisposable
         tui.CurrentState.Should().Be(TuiState.Recording);
 
         controller.OnFeedback.Invoke("compress", "active");
-        tui.FeedbackStepLabels[0].Text.Should().Contain("active");
+        tui.FeedbackStepLabels[0].Text.Should().Contain("[>]");
 
         controller.OnTranscriptUpdate.Invoke("test transcript");
         tui.TranscriptView.Text.ToString().Should().Contain("test transcript");
