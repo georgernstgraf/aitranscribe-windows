@@ -203,6 +203,7 @@ public static class TuiOrchestrator
         };
 
         tui.StartClock(app);
+        tui.TranscriptView.SetFocus();
 
         _ = Task.Run(async () =>
         {

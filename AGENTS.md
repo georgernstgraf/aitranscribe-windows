@@ -14,9 +14,17 @@ Native .NET 10 Windows port of [AI-Transcribe](https://github.com/georgernstgraf
 
 ## Build & Test
 
-- Build: `dotnet build`
-- Test: `dotnet test`
-- Run: `dotnet run --project src/AITranscribe.Console`
+.NET 10 SDK is installed locally in `%LOCALAPPDATA%\Microsoft\dotnet`. The system-wide `dotnet` (in `C:\Program Files\dotnet`) is SDK 8 and will fail for this project. Always use the wrapper scripts or the full path:
+
+- Build: `.\build.cmd`
+- Test: `.\test.cmd`
+- Run: `.\run.cmd`
+- Direct: `%LOCALAPPDATA%\Microsoft\dotnet\dotnet.exe build`
+
+In PowerShell you can also shadow the system `dotnet` for the session:
+```powershell
+$env:PATH = "$env:LOCALAPPDATA\Microsoft\dotnet;$env:PATH"
+```
 
 ## Knowledge Bootstrap
 

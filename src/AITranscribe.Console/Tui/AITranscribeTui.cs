@@ -53,6 +53,7 @@ public class AITranscribeTui : Window
     private int _lastResizeHeight;
     private View[] _focusableViews = [];
     private IApplication? _app;
+    private readonly View _commandModeSink;
 
     public bool IsPaneFocusMode => _focusableViews.Any(v => v.HasFocus);
 
@@ -66,7 +67,9 @@ public class AITranscribeTui : Window
             X = 0,
             Y = 0,
             Width = Dim.Percent(57),
-            Height = Dim.Fill(1)
+            Height = Dim.Fill(1),
+            TabStop = TabBehavior.NoStop,
+            CanFocus = true
         };
 
         var sidebarColumn = new View()
@@ -74,7 +77,9 @@ public class AITranscribeTui : Window
             X = Pos.Right(primaryColumn),
             Y = 0,
             Width = Dim.Fill(),
-            Height = Dim.Fill(1)
+            Height = Dim.Fill(1),
+            TabStop = TabBehavior.NoStop,
+            CanFocus = true
         };
 
         var statusFrame = new FrameView()
@@ -297,7 +302,17 @@ public class AITranscribeTui : Window
             Height = 1
         };
 
-        Add(primaryColumn, sidebarColumn, HelpBar);
+        _commandModeSink = new View()
+        {
+            X = 0,
+            Y = 0,
+            Width = 0,
+            Height = 0,
+            CanFocus = true,
+            TabStop = TabBehavior.NoStop
+        };
+
+        Add(primaryColumn, sidebarColumn, HelpBar, _commandModeSink);
 
         _focusableViews = [TranscriptView, HistoryList, SourceRadioGroup, FilePathField, PreprocessRadioGroup, SttModelField, LlmModelField];
 
@@ -317,6 +332,7 @@ public class AITranscribeTui : Window
         {
             view.SetScheme(scheme);
             view.HasFocusChanged += (_, _) => UpdateStatusDisplay();
+            view.MouseHighlightStates = MouseState.In;
         }
 
         HelpBar.SetScheme(scheme);
@@ -422,8 +438,46 @@ public class AITranscribeTui : Window
 
     protected override bool OnKeyDownNotHandled(Key key)
     {
+        if (key == Key.Esc && IsPaneFocusMode)
+        {
+            _commandModeSink.SetFocus();
+            return true;
+        }
+
+        if (key == Key.Tab)
+        {
+            if (IsPaneFocusMode)
+            {
+                var currentIdx = Array.FindIndex(_focusableViews, v => v.HasFocus);
+                var nextIdx = currentIdx >= 0 ? (currentIdx + 1) % _focusableViews.Length : 0;
+                _focusableViews[nextIdx].SetFocus();
+            }
+            else
+            {
+                _focusableViews[0].SetFocus();
+            }
+            return true;
+        }
+
+        if (key == Key.Tab.WithShift)
+        {
+            if (IsPaneFocusMode)
+            {
+                var currentIdx = Array.FindIndex(_focusableViews, v => v.HasFocus);
+                var prevIdx = currentIdx > 0 ? currentIdx - 1 : _focusableViews.Length - 1;
+                _focusableViews[prevIdx].SetFocus();
+            }
+            else
+            {
+                _focusableViews[0].SetFocus();
+            }
+            return true;
+        }
+
         if (!IsPaneFocusMode)
         {
+            if (key == Key.Space) { ToggleRecording(); return true; }
+            if (key == Key.S.WithCtrl) { SaveTranscript(); return true; }
             if (key == Key.A) { AppendRecording(); return true; }
             if (key == Key.C) { CopyTranscript(); return true; }
             if (key == Key.D) { Translate("german"); return true; }

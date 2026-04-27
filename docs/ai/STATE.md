@@ -4,7 +4,7 @@ Current status as of 2026-04-27.
 
 ## Current Focus
 
-Issue #36 — TUI Layout Based on Reference Design — fully implemented and tested.
+Issue #36 — TUI Layout Based on Reference Design — **complete**.
 
 ## Completed
 
@@ -17,7 +17,7 @@ Issue #36 — TUI Layout Based on Reference Design — fully implemented and tes
 - [x] I6 (#27): TUI Smoke
 - [x] #30, #31: Terminal.Gui v2 RC4 migration + .NET 10 upgrade
 - [x] #35: Scheme colors + focus system cleanup
-- [x] #36: TUI Layout Polish — feedback format `[ ]/[x]/[>]/[!]`, history subtitle, help bar, centered title, navy color scheme, new hotkeys (D/E/W/Del/A/C), label updates
+- [x] #36: TUI Layout — feedback format `[ ]/[x]/[>]/[!]`, history subtitle, help bar, centered title, navy color scheme, new hotkeys (D/E/W/Del/A/C), label updates, **pane focus mode** (Tab/Shift+Tab navigation, mouse click focus, Escape to Command Mode)
 
 ## Test Summary
 
@@ -32,6 +32,7 @@ Issue #36 — TUI Layout Based on Reference Design — fully implemented and tes
 - New TUI callbacks: `OnTranslateRequested`, `OnWriteIssueRequested`, `OnDeleteRequested`
 - HelpBar + HistorySubtitleLabel added to layout
 - `Dim.Fill(1)` + `Pos.AnchorEnd(1)` reserved for bottom help bar
+- Pane focus mode: `_commandModeSink` (0x0 view) for Escape-to-Command-Mode, `MouseHighlightStates = MouseState.In` on focusable views, manual Tab cycling
 
 ## Pending
 
@@ -46,4 +47,4 @@ Issue #36 — TUI Layout Based on Reference Design — fully implemented and tes
 
 ## Next Session
 
-Close GitHub issues, push commits, create README.md.
+Close GitHub issue #36, push commits, create README.md.

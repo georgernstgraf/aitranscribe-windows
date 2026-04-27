@@ -32,3 +32,17 @@ Terminal.Gui 2.0.0 constrains `System.Text.Json` to `>= 8.0.5 && < 9.0.0`. OpenA
 
 ### P05: Float-latest NuGet packages resolve to ancient versions
 Omitting version bounds on `PackageReference` entries causes NuGet to resolve the lowest-ever published version (e.g. OpenAI 1.0.0, NAudio 1.5.0). Always specify explicit versions in `.csproj` files.
+
+## Terminal.Gui v2 RC4 Focus System
+
+### P06: Parent `CanFocus = false` blocks ALL descendant focus
+Terminal.Gui v2 `SetHasFocusTrue` checks `superViewOrParent.CanFocus`. If any ancestor has `CanFocus = false` (the default for plain `View`), focus is denied for ALL descendants, even if descendants explicitly set `CanFocus = true`. **Containers must have `CanFocus = true`** for their children to receive focus.
+
+### P07: `MouseHighlightStates` defaults to `None`, disabling auto-grab
+`MouseHighlightStates` defaults to `MouseState.None`, so `ShouldAutoGrab` returns `false`. Mouse clicks on focusable views handle internal logic but DO NOT set focus. **Set `MouseHighlightStates = MouseState.In`** on every focusable view to enable mouse-driven focus activation.
+
+### P08: Tab/Shift+Tab have no default bindings in v2 RC4
+`DefaultKeyBindings` does not include `Tab`, `Shift+Tab`, or `F6`. Tab navigation must be implemented manually in `OnKeyDownNotHandled` or via `AddKeyBinding` (but `AddKeyBinding` is not exposed on `View` in RC4).
+
+### P09: `CanFocus` auto-sets `TabStop = TabStop` if null
+When setting `CanFocus = true`, Terminal.Gui auto-sets `TabStop = TabBehavior.TabStop` if it was previously `null`. For container views that should not be Tab stops but must allow descendant focus, **set `TabStop = TabBehavior.NoStop` BEFORE `CanFocus = true`**.

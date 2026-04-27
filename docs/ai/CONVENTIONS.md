@@ -39,3 +39,7 @@ Follow these without question. Do not deviate unless explicitly told.
 - Terminal.Gui for interactive TUI
 - Spectre.Console for CLI commands and status rendering only
 - `[STAThread]` on Main entry point (required for clipboard)
+
+## Source Reference
+
+- Terminal.Gui v2 RC4 source cloned locally at `%TEMP%\terminal.gui` for quick grepping and reading. Use this instead of webfetch when investigating internal behavior.

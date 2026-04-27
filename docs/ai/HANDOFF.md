@@ -1,19 +1,16 @@
-All 6 integration test sub-issues (I1-I6) implemented and committed. 22 integration tests created (all gated by LIVE_TEST=1). 164 unit tests green (1 pre-existing flaky test in Console.Tests).
+Current work: Issue #36 — TUI Layout Based on Reference Design — **complete**.
 
-Issues #22 (parent) and #28, #23, #24, #25, #26, #27 (sub-issues) are ready to close on GitHub.
+Pane focus mode fix implemented and tested. Build green (0 errors, 173 unit tests pass).
 
-Integration test infrastructure:
-- tests/AITransscribe.Integration.Tests/ — new project (xUnit, net8.0-windows)
-- LiveTestConfig — gates tests with LIVE_TEST=1 env var
-- CompositionRootTestHelper — real DI with temp SQLite
-- TestFixturePaths — resolves Fixtures/trump.mp3
-- All 22 tests properly skip without LIVE_TEST=1
+Changes made:
+1. `primaryColumn` and `sidebarColumn`: `TabStop = NoStop; CanFocus = true` — enables descendant focus
+2. All focusable views: `MouseHighlightStates = MouseState.In` — enables mouse click focus
+3. `TuiOrchestrator.WireTui`: `tui.TranscriptView.SetFocus()` — sets initial focus
+4. `OnKeyDownNotHandled`: Tab/Shift+Tab manual cycling through `_focusableViews`, Escape focuses `_commandModeSink` (0x0 off-screen view) to return to Command Mode
 
-Remaining open items:
-- Close GitHub issues #22, #23-#28
-- Push local commits to origin
-- README.md
-- Pre-existing flaky test: TranscribeCommandExecutionTests.ExecuteRemove_WithInvalidIndex_ReturnsOne fails when Services is null
-- Decision override: D31/D32 updated — integration tests now in separate project with real API calls
+Technical details:
+- `_commandModeSink` is a 0x0 `View` with `CanFocus = true` and `TabStop = NoStop`. When focused, `IsPaneFocusMode` is false because it's not in `_focusableViews`. It receives no mouse hits (0 area) and no keys (they bubble up).
+- `Key.Tab.WithShift` used for Shift+Tab detection in Terminal.Gui v2 RC4.
+- `AdvanceFocus` exists on `View` but manual cycling gives explicit control over Tab order.
 
-Last updated: 2026-04-24.
+Last updated: 2026-04-27.
